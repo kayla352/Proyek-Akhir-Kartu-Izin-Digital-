@@ -1,0 +1,142 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color:#222;
+}
+
+.page {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    margin: auto;
+    background: #fff;
+}
+
+/*header*/
+.hero {
+    position: relative;
+    min-height: 260px;
+    background: #ffff52;
+    overflow: hidden;
+    border-radius: 0 0 35px 35px;
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 55px 25px;
+}
+
+.label {
+    display: inline-block;
+    background: #fff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.hero h1 {
+    margin-top: 25px;
+    font-size: 42px;
+    line-height: 1;
+}
+
+.hero p {
+    margin-top: 12px;
+    font-size: 17px;
+}
+
+/* Bulatan dekorasi */
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.circle.pink {
+    width: 150px;
+    height: 150px;
+    background: #ff6b9a;
+    right: -45px;
+    top: 30px;
+}
+
+.circle.blue {
+    width: 100px;
+    height: 100px;
+    background: #55c7f2;
+    right: 70px;
+    bottom: -45px;
+}
+
+/* FORM */
+.form-card {
+  padding: 28px 22px;
+}
+
+.form-label {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.class-button,
+.student-button {
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 16px;
+  border-radius: 15px;
+  background: #f1f1f1;
+  transition: 0.2s;
+}
+
+.class-button:hover,
+.student-button:hover {
+  transform: translateY(-2px);
+}
+
+.class-button.active {
+  background: #ff6b9a;
+  color: white;
+}
+
+.info {
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff5b8;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* DAFTAR NAMA */
+.student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-button {
+  background: #e8f7ff;
+  text-align: left;
+}
+
+.student-button:hover {
+  background: #55c7f2;
+  color: white;
+}
