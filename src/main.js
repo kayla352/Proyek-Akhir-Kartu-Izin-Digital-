@@ -543,15 +543,14 @@ function halamanOrangTua() {
       <button id="ortuX" class="class-button">X</button>
       <button id="ortuXI" class="class-button">XI</button>
       <button id="ortuXII" class="class-button">XII</button>
-
+    </div>
       <button
       id="kembaliOrang"
       class="student-button"
       style="margin-top: 15px;"
       >
   ← Kembali
-</button> 
-    </div>
+</button>
 
     <div class="info">
      Pilih kelas sesuai dengan kelas anak.
@@ -583,19 +582,27 @@ document.querySelector('#ortuVII').addEventListener('click', () => {
   document.querySelector('#ortuXII').addEventListener('click', () => {
     halamanNamaAnak('XII');
   });
-  document.querySelector('#kembaliOrangTua').addEventListener('click', () => {
-    halamanNamaAnak();
-});
+  document.querySelector('#kembaliOrang').onclick = halamanLogin;
 
 }
 function halamanNamaAnak(kelas) {
   const students = {
-    VII: ['Jojo', 'Fatih', 'Nabila', 'Jara'],
-    VIII: ['Nasa', 'Lilo', 'Lilu', 'Caca'],
-    IX: ['Koko', 'Momo', 'Sisi', 'Nabiga'],
-    X: ['Jojo', 'Popo', 'Nana', 'Lili'],
-    XI: ['Nopal', 'Kino', 'Zahra', 'Cinta'],
-    XII: ['Aksa', 'Nabil', 'Amal', 'Aul']
+    Putra: {
+    VII: ['Jojo', 'Fatih'],
+    VIII: ['Nasa', 'Lilo'],
+    IX: ['Koko', 'Momo'],
+    X: ['Jojo', 'Popo'],
+    XI: ['Nopal', 'Kino'],
+    XII: ['Aksa', 'Nabil']
+  },
+  Putri: {
+    VII: ['Nabila', 'Jara'],
+    VIII: ['Lilu', 'Caca'],
+    IX: ['Sisi', 'Nabiga'],
+    X: ['Nana', 'Lili'],
+    XI: ['Zahra', 'Cinta'],
+    XII: ['Amal', 'Aul']
+  }
   };
   
   app.innerHTML = `
@@ -625,15 +632,24 @@ function halamanNamaAnak(kelas) {
   </label>
 
   <div class="student-list">
-  ${students[kelas].map((nama, index) => `
-    <button
-    id="anak${index}"
+
+  <button
+    id="putraOrtu"
     class="student-button"
-    >
-     🧑‍🎓 ${nama} 
-    </button>
-    `).join('')}
-    </div>
+  >
+    🧑🏻 Putra
+  </button>
+
+  <button
+    id="putriOrtu"
+    class="student-button"
+  >
+    🧕🏻 Putri
+  </button>
+
+  </div>
+
+  <div id="daftarNamaAnak"></div>
     <button
     id="kembaliNamaAnak"
     class="student-button"
@@ -644,16 +660,42 @@ function halamanNamaAnak(kelas) {
   </section>
  </main>
 `;
-students[kelas].forEach((nama, index) => {
+document.querySelector('#putraOrtu').addEventListener('click', () => {
+  tampilkanNamaAnak('Putra');
+});
+
+document.querySelector('#putriOrtu').addEventListener('click', () => {
+  tampilkanNamaAnak('Putri');
+});
+}
+
+function tampilkanNamaAnak(kelompok) {
+  const daftarNama = students[kelompok][kelas];
+
+  document.querySelector('#daftarNamaAnak').innerHTML = `
+   <label class="form-label" style="margin-top: 25px;">
+    Pilih nama anak
+   </label>
+
+   <div class="student-list">
+    ${daftarNama.map((nama, index) => `
+      <button
+       id="anak${index}"
+       class="student-button"
+      >
+      🧑‍🎓 ${nama}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  daftarNama.forEach((nama, index) => {
     document.querySelector(`#anak${index}`).addEventListener('click', () => {
       halamanKonfirmasiOrangTua(kelas, nama);
     });
   });
-
-  document.querySelector('#kembaliNamaAnak').addEventListener('click', () => {
-    halamanOrangTua();
-  });
 }
+
 function halamanKonfirmasiOrangTua(kelas, nama) {
    const izin = dataIzin.find(item =>
     item.kelas === kelas &&
