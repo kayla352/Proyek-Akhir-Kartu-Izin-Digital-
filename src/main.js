@@ -1,114 +1,163 @@
 import './style.css';
 const app = document.querySelector('#app');
 let dataIzin = JSON.parse(localStorage.getItem('dataIzin')) || [];
+
+const dataSiswa = {
+  VII: {
+    Putra: ['Jojo', 'Fatih'],
+    Putri: ['Nabila', 'Jara']
+  },
+  VIII: {
+    Putra: ['Nasa', 'Lilo'],
+    Putri: ['Lilu', 'Caca']
+  },
+  IX: {
+    Putra: ['Koko', 'Momo'],
+    Putri: ['Sisi', 'Nabiga']
+  },
+  X: {
+    Putra: ['Jojo', 'Popo'],
+    Putri: ['Nana', 'Lili']
+  },
+  XI: {
+    Putra: ['Nopal', 'Kino'],
+    Putri: ['Zahra', 'Cinta']
+  },
+  XII: {
+    Putra: ['Aksa', 'Nabil'],
+    Putri: ['Amal', 'Aul']
+  }
+};
+
+
 function simpanDataIzin() {
   localStorage.setItem('dataIzin', JSON.stringify(dataIzin));
 }
-function getKelompokSiswa (kelas, nama) {
-  const kelompok = {
-    VII: {
-      Putra: ['Jojo', 'Fatih'],
-      Putri: ['Nabila', 'Jara']
-    },
-    VIII: {
-      Putra: ['Nasa', 'Lilo'],
-      Putri: ['Lilu', 'Caca']
-    },
-    IX: {
-      Putra: ['Koko', 'Momo'],
-      Putri: ['Sisi', 'Nabiga']
-    },
-    X: {
-      Putra: ['Jojo', 'Popo'],
-      Putri: ['Nana', 'Lili']
-    },
-    XI: {
-      Putra: ['Nopal', 'Kino'],
-      Putri: ['Zahra', 'Cinta']
-    },
-    XII: {
-      Putra: ['Aksa', 'Nabil'],
-      Putri: ['Amal', 'Aul']
-    }
-  };
+function tampilkanPopup(judul, pesan, setelahTutup = null) {
+  const popupLama = document.querySelector('.popup-notif');
 
-  if (kelompok[kelas].Putra.includes(nama)) {
+  if (popupLama) {
+    popupLama.remove();
+  }
+
+  const popup = document.createElement('div');
+  popup.className = 'popup-notif';
+
+  popup.innerHTML = `
+    <h3>🔔 ${judul}</h3>
+
+    <p>
+      ${pesan}
+    </p>
+
+    <button id="tutupPopup">
+      Oke
+    </button>
+  `;
+
+  document.body.appendChild(popup);
+
+  document.querySelector('#tutupPopup').addEventListener('click', () => {
+    popup.remove();
+
+    if (setelahTutup) {
+      setelahTutup();
+    }
+  });
+}
+function getKelompokSiswa(kelas, nama) {
+  if (dataSiswa[kelas].Putra.includes(nama)) {
     return 'Putra';
   }
 
-  if (kelompok[kelas].Putri.includes(nama)) {
+  if (dataSiswa[kelas].Putri.includes(nama)) {
     return 'Putri';
   }
 
   return '';
 }
-
 function halamanLogin() {
-   app.innerHTML = `
-     <main class="page">
-       <section class="hero">
+  app.innerHTML = `
+    <main class="page">
+
+      <section class="hero">
         <div class="circle pink"></div>
         <div class="circle blue"></div>
 
         <div class="hero-content">
-         <div class="label">
-          KARTU IZIN BOARDING
-         </div>
+          <div class="label">
+            KARTU IZIN BOARDING
+          </div>
 
-         <h1>Selamat Datang!</h1>
+          <h1>Selamat Datang!</h1>
 
-         <p>
-          Masuk sebagai siapa?
-         </p>
+          <p>
+            Masuk sebagai siapa?
+          </p>
         </div>
       </section>
 
       <section class="form-card">
 
-       <label class="form-label">
-         Pilih peran kamu
-       </label>
+        <label class="form-label">
+          Pilih peran kamu
+        </label>
 
-       <div class="student-list">
+        <div class="student-list">
 
-       <button
-        id="siswa"
-        class="student-button"
-       >
-        🧑‍🎓Siswa
-       </button>
-       <button
-        id="orangTua"
-        class="student-button"
-       >
-         👨‍👩‍👧 Orang Tua
-       </button>
+          <button
+            id="siswa"
+            class="student-button"
+          >
+            🧑‍🎓 Siswa
+            <small>
+              Ajukan dan lihat status izin
+            </small>
+          </button>
 
-       <button
-        id="pembina"
-        class="student-button"
-       >
-         🧑‍🏫 Pembina
-       </button>
+          <button
+            id="orangTua"
+            class="student-button"
+          >
+            👨‍👩‍👧 Orang Tua
+            <small>
+              Konfirmasi izin anak
+            </small>
+          </button>
 
-      </div>
-    </section>
-  </main>
-`;
+          <button
+            id="pembina"
+            class="student-button"
+          >
+            🧑‍🏫 Pembina
+            <small>
+              Kelola dan setujui izin
+            </small>
+          </button>
 
-document.querySelector('#siswa').addEventListener('click', () => {
-  halamanSiswa();
-});
+        </div>
 
-document.querySelector('#orangTua').addEventListener('click', () => {
-  halamanOrangTua ();
-});
+        <div class="info">
+          Pilih peran sesuai dengan akses kamu.
+        </div>
 
-document.querySelector('#pembina').addEventListener('click', () => {
-  halamanPembina();
-});
+      </section>
+
+    </main>
+  `;
+
+  document.querySelector('#siswa').addEventListener('click', () => {
+    halamanSiswa();
+  });
+
+  document.querySelector('#orangTua').addEventListener('click', () => {
+    halamanOrangTua();
+  });
+
+  document.querySelector('#pembina').addEventListener('click', () => {
+    halamanPembina();
+  });
 }
-
 function halamanSiswa() {
   app.innerHTML = `
    <main class="page">
@@ -179,133 +228,164 @@ document.querySelector('#kembaliSiswa').addEventListener('click', () => {
 }
 function halamanNamaSiswa(kelas) {
   const students = {
-  Putra: {
-      VII: ['Jojo', 'Fatih'],
-      VIII: ['Nasa', 'Lilo'],
-      IX: ['Koko', 'Momo'],
-      X: ['Jojo', 'Popo'],
-      XI: ['Nopal', 'Kino'],
-      XII: ['Aksa', 'Nabil']
-    },
-    Putri: {
-      VII: ['Nabila', 'Jara'],
-      VIII: ['Lilu', 'Caca'],
-      IX: ['Sisi', 'Nabiga'],
-      X: ['Nana', 'Lili'],
-      XI: ['Zahra', 'Cinta'],
-      XII: ['Amal', 'Aul']
-    }
-};
+    Putra: dataSiswa[kelas].Putra,
+    Putri: dataSiswa[kelas].Putri
+  };
+
   app.innerHTML = `
-   <main class="page">
-   <section class="hero">
-    <div class="circle pink"></div>
-    <div class="circle blue"></div>
+    <main class="page">
 
-    <div class="hero-content">
-     <div class="label">
-      KARTU IZIN BOARDING
-     </div>
+      <section class="hero">
+        <div class="circle pink"></div>
+        <div class="circle blue"></div>
 
-     <h1>Kelas ${kelas}</h1>
+        <div class="hero-content">
+          <div class="label">
+            KARTU IZIN BOARDING
+          </div>
 
-     <p>
-     Pilih nama kamu
-     </p>
-    </div>
-   </section>
+          <h1>Kelas ${kelas}</h1>
 
-   <section class="form-card">
+          <p>
+            Pilih kelompok dan nama kamu
+          </p>
+        </div>
+      </section>
 
-   <label class="form-label">
-   Pilih nama
-   </label>
+      <section class="form-card">
 
-   <div class="student-list">
-    <button id="putra" class="student-button">
-      🧑🏻 Putra
-    </button>
+        <label class="form-label">
+          Pilih kelompok
+        </label>
 
-    <button id="putri" class="student-button">
-      🧕🏻 Putri
-    </button>
-    </div>
-    <div id="daftarNama"></div>
-    <button
-      id="kembaliNama"
-      class="student-button"
-      style="margin-top: 15px;"
-    >
-     ← Kembali
-     </button>
-    </section>
-   </main>
+        <div class="student-list">
+
+          <button id="putra" class="student-button">
+            🧑🏻 Putra
+          </button>
+
+          <button id="putri" class="student-button">
+            🧕🏻 Putri
+          </button>
+
+        </div>
+
+        <div id="daftarNama"></div>
+
+        <button
+          id="kembaliNama"
+          class="student-button"
+          style="margin-top: 15px;"
+        >
+          ← Kembali
+        </button>
+
+      </section>
+
+    </main>
   `;
+
   document.querySelector('#putra').addEventListener('click', () => {
     tampilkanNama('Putra');
   });
-  document.querySelector('#putri').addEventListener('click', () =>{
+
+  document.querySelector('#putri').addEventListener('click', () => {
     tampilkanNama('Putri');
   });
+
   function tampilkanNama(kelompok) {
-    const daftarNama = students[kelompok][kelas];
+    const daftarNama = students[kelompok];
+
     document.querySelector('#daftarNama').innerHTML = `
-     <label class="form-label" style="margin-top: 25px;">
-      Pilih nama
-     </label>
+      <label class="form-label" style="margin-top: 25px;">
+        Pilih nama
+      </label>
 
-     <div class="student-list">
-      ${daftarNama.map((nama, index) => `
-        <button
-        id="nama${index}"
-        class="student-button"
-        >
-        🧑‍🎓 ${nama}
-        </button>
-      `).join('')}
-    </div>
-  `;
-  daftarNama.forEach((nama, index) => {
-    document.querySelector(`#nama${index}`).addEventListener('click', () => {
-     const izinAktif = dataIzin.find(izin =>
-      izin.kelas === kelas &&
-      izin.nama === nama &&
-      izin.statusPembina === 'Diizinkan' &&
-      !izin.jamKembaliAktual
-     );
-     const izinMenunggu = dataIzin.find(izin =>
-      izin.kelas === kelas &&
-      izin.nama === nama &&
-      !izin.jamKembaliAktual &&
-      (
-        izin.statusOrangTua === 'Menunggu' ||
-        izin.statusOrangTua === 'Dikonfirmasi' ||
-        izin.statusPembina === 'Menunggu' 
-      )
-     );
+      <div class="student-list">
 
-     if (izinAktif) {
-      const sekarang = new Date();
-      const waktuPergi = new Date(
-        `${izinAktif.tanggal}T${izinAktif.jamPergi}`
-      );
-      if (sekarang >= waktuPergi) {
-        halamanJamKembaliSiswa(kelas, nama, izinAktif);
-      } else {
-        halamanStatusIzinSiswa(kelas, nama, izinAktif);
-      }
-    } else if (izinMenunggu) {
-      halamanStatusIzinSiswa(kelas, nama, izinMenunggu);
-    } else {
-      halamanTanggalIzin(kelas, nama);
-    }
+        ${daftarNama.map((nama, index) => `
+          <button
+            id="nama${index}"
+            class="student-button"
+          >
+            🧑‍🎓 ${nama}
+          </button>
+        `).join('')}
 
-  });
-});
-}
-document.querySelector('#kembaliNama').addEventListener('click', () => {
-  halamanSiswa();
-});
+      </div>
+    `;
+
+    daftarNama.forEach((nama, index) => {
+      document
+        .querySelector(`#nama${index}`)
+        .addEventListener('click', () => {
+
+          const izinAktif = dataIzin.find(izin =>
+            izin.kelas === kelas &&
+            izin.nama === nama &&
+            izin.statusPembina === 'Diizinkan' &&
+            !izin.jamKembaliAktual
+          );
+
+          const izinMenunggu = dataIzin.find(izin =>
+            izin.kelas === kelas &&
+            izin.nama === nama &&
+            !izin.jamKembaliAktual &&
+            (
+              izin.statusOrangTua === 'Menunggu' ||
+              izin.statusOrangTua === 'Dikonfirmasi' ||
+              izin.statusPembina === 'Menunggu'
+            )
+          );
+
+          if (izinAktif) {
+
+            const sekarang = new Date();
+
+            const waktuPergi = new Date(
+              `${izinAktif.tanggal}T${izinAktif.jamPergi}`
+            );
+
+            if (sekarang >= waktuPergi) {
+              halamanJamKembaliSiswa(
+                kelas,
+                nama,
+                izinAktif
+              );
+            } else {
+              halamanStatusIzinSiswa(
+                kelas,
+                nama,
+                izinAktif
+              );
+            }
+
+          } else if (izinMenunggu) {
+
+            halamanStatusIzinSiswa(
+              kelas,
+              nama,
+              izinMenunggu
+            );
+
+          } else {
+
+            halamanTanggalIzin(
+              kelas,
+              nama
+            );
+
+          }
+
+        });
+    });
+  }
+
+  document
+    .querySelector('#kembaliNama')
+    .addEventListener('click', () => {
+      halamanSiswa();
+    });
 }
 function halamanJamKembaliSiswa(kelas, nama, izin) {
   app.innerHTML = `
@@ -381,15 +461,22 @@ function halamanJamKembaliSiswa(kelas, nama, izin) {
       document.querySelector('#jamKembaliAktual').value;
 
     if (jamKembaliAktual === '') {
-      alert('Silakan masukkan jam kembali.');
+      tampilkanPopup(
+        'Jam kembali belum diisi',
+        'Silakan masukkan jam kembali terlebih dahulu.'
+      );
       return;
     }
 
     izin.jamKembaliAktual = jamKembaliAktual;
+    izin.notifikasiKembaliOrtu = true;
     simpanDataIzin();
-    alert('Jam kembali berhasil dicatat.');
+    tampilkanPopup(
+      'Sudah kembali',
+      'Jam kembali berhasil dicatat.'
+    );
 
-    halamanNamaSiswa(kelas);
+    halamanRiwayatSiswa(kelas, nama);
   });
 
   document.querySelector('#kembaliSiswa').addEventListener('click', () => {
@@ -399,50 +486,106 @@ function halamanJamKembaliSiswa(kelas, nama, izin) {
 
 function halamanStatusIzinSiswa(kelas, nama, izin) {
   app.innerHTML = `
-   <div class="page">
-   <section class="form-card">
-    <h2>Status Izin</h2>
-    <div class="info" style="margin-top: 20px;">
-    <strong>${izin.jenis}</strong>
-    </div>
+    <div class="page">
+      <section class="form-card status-card">
 
-    <p style="margin-top: 15px;">
-    Tanggal: ${izin.tanggal}
-    </p>
-    <p style="margin-top: 10px;">
-    Jam pergi: ${izin.jamPergi}
-    </p>
-    ${
-      izin.keterangan
-      ? `<p style="margin-top: 10px;">Keterangan: ${izin.keterangan}</p>`
-      : ''
-    }
-    <div class="info" style="margin-top: 20px;">
-     ${
-      izin.jenis === 'Lainnya' &&
-      izin.statusOrangTua === 'Ditolak' 
-        ? 'Izin ditolak oleh orang tua.'
-        :izin.jenis === 'Lainnya' &&
-         izin.statusOrangTua === 'Menunggu'
-        ? 'Menunggu konfirmasi orang tua.'
-        : izin.statusOrangTua === 'Dikonfirmasi' &&
-          izin.statusPembina !== 'Diizinkan'
-        ? 'Orang tua sudah mengonfirmasi. Menunggu persetujuan pembina.'
-        : izin.statusPembina !== 'Diizinkan'
-        ? 'Menunggu persetujuan pembina.'
-        : `
-          Izin sudah disetujui.<br><br>
-          ⏰ Jam pergi: ${izin.jamPergi}<br>
-          🏠 Maksimal kembali: ${izin.jamMaksimal}
-          `
-     }
+        <div class="status-icon">🕐</div>
+
+        <h2>Status Izin</h2>
+
+        <div class="status-jenis">
+          ${izin.jenis}
+        </div>
+
+        <div class="status-detail">
+          <div class="status-row">
+            <span>📅 Tanggal</span>
+            <strong>${izin.tanggal}</strong>
+          </div>
+
+          <div class="status-row">
+            <span>🚶 Jam pergi</span>
+            <strong>${izin.jamPergi}</strong>
+          </div>
+
+          ${
+            izin.keterangan
+              ? `
+                <div class="status-row">
+                  <span>📝 Keterangan</span>
+                  <strong>${izin.keterangan}</strong>
+                </div>
+              `
+              : ''
+          }
+        </div>
+
+        <div class="status-message">
+          ${
+            izin.jenis === 'Lainnya' &&
+            izin.statusOrangTua === 'Ditolak'
+              ? `
+                <div class="status-badge ditolak">❌ Izin ditolak</div>
+                <p>Izin ditolak oleh orang tua.</p>
+              `
+              : izin.jenis === 'Lainnya' &&
+                izin.statusOrangTua === 'Menunggu'
+              ? `
+                <div class="status-badge menunggu">🟡 Menunggu</div>
+                <p>Menunggu konfirmasi orang tua.</p>
+              `
+              : izin.statusOrangTua === 'Dikonfirmasi' &&
+                izin.statusPembina !== 'Diizinkan'
+              ? `
+                <div class="status-badge proses">🔵 Diproses</div>
+                <p>Orang tua sudah mengonfirmasi.<br>
+                Menunggu persetujuan pembina.</p>
+              `
+              : izin.statusPembina !== 'Diizinkan'
+              ? `
+                <div class="status-badge menunggu">🟡 Menunggu</div>
+                <p>Menunggu persetujuan pembina.</p>
+              `
+              : `
+                <div class="status-badge disetujui">🟢 Disetujui</div>
+
+                <div class="approved-info">
+                  <p>🚶 Jam pergi: <strong>${izin.jamPergi}</strong></p>
+                  <p>🏠 Maksimal kembali: <strong>${izin.jamMaksimal}</strong></p>
+                </div>
+              `
+          }
+        </div>
+        
+        <button id="kembaliStatus" class="student-button">
+           ← Kembali
+        </button>
+
+      </section>
     </div>
-  </section>
- </div>
-`;
+  `;
+  document.querySelector('#kembaliStatus').addEventListener('click', () => {
+    halamanNamaSiswa(kelas);
+  });
 }
 
 function halamanTanggalIzin(kelas, nama) {
+  const izinBelumSelesai = dataIzin.find(izin =>
+    izin.kelas === kelas &&
+    izin.nama === nama &&
+    !izin.jamKembaliAktual &&
+    izin.statusOrangTua !== 'Ditolak' &&
+    (
+      izin.statusOrangTua === 'Menunggu' ||
+      izin.statusPembina === 'Menunggu' ||
+      izin.statusPembina === 'Diizinkan'
+    )
+  );
+  if (izinBelumSelesai) {
+    alert('Kamu masih memiliki izin yang belum selesai.');
+    halamanNamaSiswa(kelas);
+    return;
+  }
    app.innerHTML = `
    <main class="page">
 
@@ -535,62 +678,94 @@ function halamanTanggalIzin(kelas, nama) {
    `;
   });
     document.querySelector('#ajukanIzin').addEventListener('click', () => {
-      const tanggal = document.querySelector('#tanggalIzin').value;
-      const jamPergi = document.querySelector('#jamPergi').value;
+  const tanggal = document.querySelector('#tanggalIzin').value;
+  const jamPergi = document.querySelector('#jamPergi').value;
 
-      if (tanggal === '') {
-        alert('Silakan pilih tanggal izin terlebih dahulu.');
-        return;
-      }
-      if (jamPergi === '') {
-        alert('Silahkan masukkan jam pergi terlebih dahulu');
-        return;
-      }
-      if (jenisIzin === '') {
-        alert('Silakan pilih jenis izin terlebih dahulu.');
-        return;
-      }
-      if (jenisIzin === 'Lainnya') {
-        const keterangan = document.querySelector('#keterangan').value.trim();
+  if (tanggal === '') {
+    alert('Silakan pilih tanggal izin terlebih dahulu.');
+    return;
+  }
 
-        if (keterangan === '') {
-          alert ('Keterangan wajib diisi.');
-          return;
-      }
+  if (jamPergi === '') {
+    alert('Silakan masukkan jam pergi terlebih dahulu.');
+    return;
+  }
 
-      dataIzin.push({
-        nama: nama,
-        kelas: kelas,
-        kelompok: getKelompokSiswa(kelas, nama),
-        tanggal: tanggal,
-        jamPergi: jamPergi,
-        jenis: jenisIzin,
-        keterangan: keterangan,
-        statusOrangTua: 'Menunggu',
-        statusPembina: 'Menunggu'
-      });
-      simpanDataIzin();
+  if (jenisIzin === '') {
+    alert('Silakan pilih jenis izin terlebih dahulu.');
+    return;
+  }
 
-        alert('Izin berhasil diajukan. Silakan tunggu konfirmasi orang tua.');
-        halamanNamaSiswa(kelas, nama);
+  // =========================
+  // IZIN LAINNYA
+  // =========================
+  if (jenisIzin === 'Lainnya') {
+
+    const keterangan =
+      document.querySelector('#keterangan').value.trim();
+
+    if (keterangan === '') {
+      alert('Keterangan wajib diisi.');
+      return;
     }
-      if (jenisIzin === 'Les') {
-        dataIzin.push({
-          nama: nama,
-          kelas: kelas,
-          kelompok: getKelompokSiswa(kelas, nama),
-          tanggal: tanggal,
-          jamPergi: jamPergi,
-          jenis: jenisIzin,
-          keterangan: '-',
-          statusOrangTua: 'Dikonfirmasi',
-          statusPembina: 'Menunggu'
-        });
-        simpanDataIzin();
-      alert('Izin Les berhasil diajukan. Silahkan tunggu persetujuan pembina.');
-      halamanNamaSiswa(kelas, nama);
-    }
-    });
+
+    const izinBaru = {
+      nama: nama,
+      kelas: kelas,
+      kelompok: getKelompokSiswa(kelas, nama),
+      tanggal: tanggal,
+      jamPergi: jamPergi,
+      jenis: 'Lainnya',
+      keterangan: keterangan,
+      statusOrangTua: 'Menunggu',
+      statusPembina: 'Menunggu'
+    };
+
+    dataIzin.push(izinBaru);
+    simpanDataIzin();
+
+    tampilkanPopup(
+  'Izin berhasil diajukan',
+  'Silakan tunggu konfirmasi orang tua.',
+  () => {
+    halamanStatusIzinSiswa(kelas, nama, izinBaru);
+  }
+);
+
+return;
+  }
+
+  // =========================
+  // IZIN LES
+  // =========================
+  if (jenisIzin === 'Les') {
+
+    const izinBaru = {
+      nama: nama,
+      kelas: kelas,
+      kelompok: getKelompokSiswa(kelas, nama),
+      tanggal: tanggal,
+      jamPergi: jamPergi,
+      jenis: 'Les',
+      keterangan: '-',
+      statusOrangTua: 'Dikonfirmasi',
+      statusPembina: 'Menunggu'
+    };
+
+    dataIzin.push(izinBaru);
+    simpanDataIzin();
+
+    tampilkanPopup(
+  'Izin Les berhasil diajukan',
+  'Silakan tunggu persetujuan pembina.',
+  () => {
+    halamanStatusIzinSiswa(kelas, nama, izinBaru);
+  }
+);
+
+return;
+  }
+});
   document.querySelector('#kembaliTanggal').addEventListener('click', () => {
     halamanNamaSiswa(kelas);
   });
@@ -676,25 +851,8 @@ document.querySelector('#ortuVII').addEventListener('click', () => {
 
 }
 function halamanNamaAnak(kelas) {
-  const students = {
-    Putra: {
-    VII: ['Jojo', 'Fatih'],
-    VIII: ['Nasa', 'Lilo'],
-    IX: ['Koko', 'Momo'],
-    X: ['Jojo', 'Popo'],
-    XI: ['Nopal', 'Kino'],
-    XII: ['Aksa', 'Nabil']
-  },
-  Putri: {
-    VII: ['Nabila', 'Jara'],
-    VIII: ['Lilu', 'Caca'],
-    IX: ['Sisi', 'Nabiga'],
-    X: ['Nana', 'Lili'],
-    XI: ['Zahra', 'Cinta'],
-    XII: ['Amal', 'Aul']
-  }
-  };
-  
+  const students = dataSiswa;
+
   app.innerHTML = `
    <main class="page">
 
@@ -792,6 +950,12 @@ function tampilkanNamaAnak(kelompok, kelas, students) {
         izin.statusOrangTua === 'Menunggu' 
       );
 
+      const izinSudahKembali = dataIzin.find(izin =>
+        izin.kelas === kelas &&
+        izin.nama === nama &&
+        izin.notifikasiKembaliOrtu === true
+      );
+
       app.innerHTML = `
        <main class="page">
         <section class="hero">
@@ -818,6 +982,20 @@ function tampilkanNamaAnak(kelompok, kelas, students) {
           </label>
 
           <div class="student-list">
+
+           ${izinSudahKembali ? `
+            <div class="notification-card">
+             <h3>🔔 Anak sudah kembali</h3>
+             <p>
+                ${nama} telah kembali pada pukul
+                <strong>${izinSudahKembali.jamKembaliAktual}</strong>.
+            </p>
+
+            <button id="tutupNotifKembali" class="student-button">
+             Oke
+            </button>
+           </div>
+          ` : ''}
 
             <button
               id="permintaanOrtu"
@@ -852,7 +1030,20 @@ function tampilkanNamaAnak(kelompok, kelas, students) {
 
       </main>
     `;
+    
+    if (izinSudahKembali) {
+       document.querySelector('#tutupNotifKembali').addEventListener('click', () => {
+        izinSudahKembali.notifikasiKembaliOrtu = false;
+        simpanDataIzin();
 
+        tampilkanPopup(
+          'Notifikasi dibaca',
+          'Notifikasi anak sudah kembali telah dibaca.'
+        );
+
+        tampilkanNamaAnak(kelompok, kelas, students);
+      });
+    }
     document.querySelector('#permintaanOrtu').addEventListener('click', () => {
       halamanKonfirmasiOrangTua(kelas, nama);
     });
@@ -1009,7 +1200,10 @@ function halamanKonfirmasiOrangTua(kelas, nama) {
   document.querySelector('#konfirmasi').addEventListener('click', () => {
     izin.statusOrangTua = 'Dikonfirmasi';
     simpanDataIzin();
-    alert('Izin telah dikonfirmasi.');
+    tampilkanPopup(
+      'Izin telah dikonfirmasi',
+      'Izin telah dikonfirmasi dan diteruskan ke pembina.'
+    );
 
     halamanNamaAnak(kelas);
   });
@@ -1017,7 +1211,10 @@ function halamanKonfirmasiOrangTua(kelas, nama) {
   document.querySelector('#tidakKonfirmasi').addEventListener('click', () => {
     izin.statusOrangTua = 'Ditolak';
     simpanDataIzin();
-    alert('Izin tidak dikonfirmasi.');
+    tampilkanPopup(
+      'Izin tidak dikonfirmasi',
+    'Permintaan izin tidak dikonfirmasi oleh orang tua.'
+    );
 
     halamanNamaAnak(kelas);
   });
@@ -1168,6 +1365,9 @@ function halamanPembina() {
   <button id="kelasX" class="class-button">X</button>
   <button id="kelasXI" class="class-button">XI</button>
   <button id="kelasXII" class="class-button">XII</button>
+
+  </div>
+
   <button
   id="kembaliPembina"
   class="student-button"
@@ -1175,7 +1375,7 @@ function halamanPembina() {
 >
   ← Kembali
 </button>
-</div>
+
 
     <div class="info">
      Setelah memilih kelas, pilih Putra atau Putri.
@@ -1214,6 +1414,22 @@ document.querySelector('#kembaliPembina').addEventListener('click', () => {
 
 }
  function pilihKelasPembina(kelas) {
+
+  const jumlahPutra = dataIzin.filter(izin =>
+    izin.kelas === kelas &&
+    izin.kelompok === 'Putra' &&
+    izin.statusOrangTua === 'Dikonfirmasi' &&
+    izin.statusPembina === 'Menunggu'
+  ).length;
+
+  const jumlahPutri = dataIzin.filter(izin =>
+    izin.kelas === kelas &&
+    izin.kelompok === 'Putri' &&
+    izin.statusOrangTua === 'Dikonfirmasi' &&
+    izin.statusPembina === 'Menunggu'
+  ).length;
+
+
   app.innerHTML = `
    <main class="page">
     <section class="hero">
@@ -1240,10 +1456,16 @@ document.querySelector('#kembaliPembina').addEventListener('click', () => {
       <div class="student-list">
        <button id="putra" class="student-button">
             🧑🏻 Putra
+            <span style="float: right;">
+             ${jumlahPutra} permintaan izin
+            </span>
           </button>
 
           <button id="putri"class="student-button">
             🧕🏻 Putri
+            <span style="float: right;">
+              ${jumlahPutri} permintaan izin
+            </span>
           </button>
 
           <button
@@ -1505,7 +1727,10 @@ function halamanDetailPermintaan(kelas, kelompok, izin) {
       izin.jamMaksimal = jamKembali;
       izin.statusPembina = 'Diizinkan';
       simpanDataIzin();
-      alert('Izin telah diizinkan.');
+      tampilkanPopup(
+        'Izin telah diizinkan',
+        `Izin ${izin.nama} telah disetujui.`
+      );
 
       halamanDashboardPembina(kelas, kelompok);
     });
@@ -1723,6 +1948,116 @@ function halamanLagiDiluar(kelas, kelompok) {
   document.querySelector('#kembaliRiwayat').addEventListener('click', () => {
     halamanDashboardPembina(kelas, kelompok);
   });
+}
+
+function halamanRiwayatSiswa(kelas, nama) {
+  const riwayat = dataIzin.filter(izin =>
+    izin.kelas === kelas &&
+    izin.nama === nama &&
+    izin.statusPembina === 'Diizinkan' &&
+    izin.jamKembaliAktual
+  );
+
+  app.innerHTML = `
+    <main class="page">
+
+      <section class="hero">
+        <div class="circle pink"></div>
+        <div class="circle blue"></div>
+
+        <div class="hero-content">
+          <div class="label">
+            KARTU IZIN BOARDING
+          </div>
+
+          <h1>Riwayat</h1>
+
+          <p>
+            ${nama} • Kelas ${kelas}
+          </p>
+        </div>
+      </section>
+
+      <section class="form-card">
+
+        <label class="form-label">
+          Riwayat Izin
+        </label>
+
+        <div class="student-list">
+
+          ${
+            riwayat.length === 0
+            ? `
+              <div class="info">
+                Belum ada riwayat izin.
+              </div>
+            `
+            : riwayat.map(izin => `
+              <div class="student-button">
+
+                <strong>${izin.nama}</strong>
+
+                <br><br>
+
+                <small>
+                  📅 Tanggal: ${izin.tanggal}
+                </small>
+
+                <br>
+
+                <small>
+                  ⏰ Jam pergi: ${izin.jamPergi}
+                </small>
+
+                <br>
+
+                <small>
+                  📝 Jenis izin: ${izin.jenis}
+                </small>
+
+                <br>
+
+                <small>
+                  📄 Keterangan: ${izin.keterangan || '-'}
+                </small>
+
+                <br>
+
+                <small>
+                  ⏰ Maksimal kembali: ${izin.jamMaksimal}
+                </small>
+
+                <br>
+
+                <small>
+                  🏠 Kembali sebenarnya: ${izin.jamKembaliAktual}
+                </small>
+
+              </div>
+            `).join('')
+          }
+
+        </div>
+
+        <button
+          id="kembaliRiwayatSiswa"
+          class="student-button"
+          style="margin-top: 15px;"
+        >
+          ← Kembali
+        </button>
+
+      </section>
+
+    </main>
+  `;
+
+  document
+    .querySelector('#kembaliRiwayatSiswa')
+    .addEventListener('click', () => {
+      halamanNamaSiswa(kelas);
+    });
 }
 
 halamanLogin();
