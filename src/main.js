@@ -415,7 +415,7 @@ function halamanAdmin() {
             <span class="menu-text">
               <strong>Kelola Siswa</strong>
               <small>
-                Tambah, edit, dan hapus data siswa
+                Tambah dan hapus data siswa
               </small>
             </span>
 
