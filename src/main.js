@@ -1640,10 +1640,7 @@ Terima kasih.
     () => {
 
       // Buka WhatsApp setelah pengguna menekan tombol Oke
-      window.open(
-        linkWhatsApp,
-        '_blank'
-      );
+      window.location.href = linkWhatsApp;
 
       halamanStatusIzinSiswa(
         kelas,
