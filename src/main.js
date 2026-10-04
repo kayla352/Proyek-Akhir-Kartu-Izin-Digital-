@@ -40,6 +40,7 @@ function tampilkanPopup(judul, pesan, setelahTutup = null) {
   });
 }
 
+
 function getKelompokSiswa(kelas, nama) {
   if (!dataSiswa[kelas]) {
     return '';
@@ -93,24 +94,27 @@ function halamanLogin() {
           </button>
 
           <button
-            id="orangTua"
-            class="student-button"
-          >
-            👨‍👩‍👧 Orang Tua
-          </button>
-
-          <button
             id="pembina"
             class="student-button"
           >
             🧑‍🏫 Pembina
           </button>
-
         </div>
-
+        
         <div class="info">
           Pilih peran sesuai dengan akses kamu.
         </div>
+
+        <div class="admin-login">
+          <button
+           id="admin"
+          >   
+            Admin
+          </button>
+
+        </div>
+
+        
 
       </section>
 
@@ -121,14 +125,448 @@ function halamanLogin() {
     halamanSiswa();
   });
 
-  document.querySelector('#orangTua').addEventListener('click', () => {
-    halamanOrangTua();
-  });
-
   document.querySelector('#pembina').addEventListener('click', () => {
     halamanPembina();
   });
+  document.querySelector('#admin').addEventListener('click', () => {
+    halamanLoginAdmin();
+  });
 }
+
+function halamanLoginAdmin() {
+  app.innerHTML = `
+    <main class="page">
+
+      <section class="hero">
+        <div class="circle pink"></div>
+        <div class="circle blue"></div>
+
+        <div class="hero-content">
+          <div class="label">
+            KARTU IZIN BOARDING
+          </div>
+
+          <h1>Admin</h1>
+
+          <p>
+            Masuk ke halaman pengelolaan sistem.
+          </p>
+        </div>
+      </section>
+
+      <section class="form-card">
+
+        <label class="form-label">
+          Login Admin
+        </label>
+
+        <p class="admin-description">
+          Masukkan kode admin untuk melanjutkan.
+        </p>
+
+        <input
+          id="kodeAdmin"
+          type="password"
+          placeholder="Masukkan kode admin"
+        />
+
+        <button
+          id="masukAdmin"
+          class="admin-main-button"
+        >
+          🔐 Masuk
+        </button>
+
+        <button
+          id="kembaliAdmin"
+          class="back-button"
+        >
+          ← Kembali
+        </button>
+
+      </section>
+
+    </main>
+  `;
+
+  document.querySelector('#masukAdmin').addEventListener('click', () => {
+    const kode = document.querySelector('#kodeAdmin').value;
+
+    if (kode === '') {
+      alert('Silakan masukkan kode admin.');
+      return;
+    }
+
+    if (kode !== 'ADMIN2026') {
+      alert('Kode admin salah.');
+      return;
+    }
+
+    halamanAdmin();
+  });
+
+  document.querySelector('#kembaliAdmin').addEventListener('click', () => {
+    halamanLogin();
+  });
+} 
+
+function halamanAdmin() {
+  app.innerHTML = `
+    <main class="page">
+
+      <section class="admin-header">
+        <div class="admin-header-content">
+
+          <span class="admin-label">
+            ADMIN
+          </span>
+
+          <h1>Dashboard</h1>
+
+          <p>
+            Kelola data Kartu Izin Boarding Digital.
+          </p>
+
+        </div>
+      </section>
+
+      <section class="form-card">
+
+        <div class="admin-welcome">
+          <div class="admin-icon">
+            🛠️
+          </div>
+
+          <div>
+            <h2>Panel Admin</h2>
+            <p>
+              Pilih menu yang ingin kamu kelola.
+            </p>
+          </div>
+        </div>
+
+        <div class="admin-menu">
+
+          <button
+            id="kelolaSiswa"
+            class="admin-menu-button"
+          >
+            <span class="menu-icon">👨‍🎓</span>
+
+            <span class="menu-text">
+              <strong>Kelola Siswa</strong>
+              <small>
+                Tambah dan hapus data siswa
+              </small>
+            </span>
+
+            <span class="menu-arrow">›</span>
+          </button>
+
+        </div>
+
+        <button
+          id="keluarAdmin"
+          class="back-button"
+        >
+          ← Keluar dari Admin
+        </button>
+
+      </section>
+
+    </main>
+  `;
+
+  document.querySelector('#kelolaSiswa').addEventListener('click', () => {
+    halamanKelolaSiswa();
+  });
+
+  document.querySelector('#keluarAdmin').addEventListener('click', () => {
+    halamanLogin();
+  });
+}
+
+async function halamanKelolaSiswa() {
+  app.innerHTML = `
+    <main class="page">
+
+      <section class="admin-header">
+        <div class="admin-header-content">
+
+          <span class="admin-label">
+            ADMIN
+          </span>
+
+          <h1>Data Siswa</h1>
+
+          <p>
+            Kelola data siswa boarding.
+          </p>
+
+        </div>
+      </section>
+
+      <section class="form-card">
+
+        <button
+          id="tambahSiswa"
+          class="admin-main-button"
+        >
+          + Tambah Siswa
+        </button>
+
+        <div id="daftarSiswa" style="margin-top: 20px;">
+          <p style="text-align:center; color:#777;">
+            Memuat data siswa...
+          </p>
+        </div>
+
+        <button
+          id="kembaliAdmin"
+          class="back-button"
+        >
+          ← Kembali ke Dashboard
+        </button>
+
+      </section>
+
+    </main>
+  `;
+
+  document.querySelector('#tambahSiswa').addEventListener('click', () => {
+    halamanTambahSiswa();
+  });
+
+  document.querySelector('#kembaliAdmin').addEventListener('click', () => {
+    halamanAdmin();
+  });
+
+  const { data, error } = await supabase
+    .from('siswa')
+    .select('id, nama, kelas, kelompok')
+    .order('kelas')
+    .order('nama');
+
+  if (error) {
+    console.error(error);
+
+    document.querySelector('#daftarSiswa').innerHTML = `
+      <div class="info">
+        Data siswa gagal dimuat.
+      </div>
+    `;
+
+    return;
+  }
+
+  if (data.length === 0) {
+    document.querySelector('#daftarSiswa').innerHTML = `
+      <div class="info">
+        Belum ada data siswa.
+      </div>
+    `;
+
+    return;
+  }
+
+  document.querySelector('#daftarSiswa').innerHTML = data.map((siswa) => `
+   <div class="admin-student-card">
+
+  <div>
+    <strong>${siswa.nama}</strong>
+
+    <small>
+      Kelas ${siswa.kelas} • ${siswa.kelompok}
+    </small>
+  </div>
+
+  <button
+    onclick="hapusSiswaAdmin(${siswa.id})"
+    class="delete-button"
+  >
+    🗑️ Hapus
+  </button>
+
+</div>
+  `).join('');
+}
+function halamanTambahSiswa() {
+  app.innerHTML = `
+    <main class="page">
+
+      <section class="admin-header">
+        <div class="admin-header-content">
+
+          <span class="admin-label">
+            ADMIN
+          </span>
+
+          <h1>Tambah Siswa</h1>
+
+          <p>
+            Tambahkan data siswa baru.
+          </p>
+
+        </div>
+      </section>
+
+      <section class="form-card">
+
+        <label class="form-label">
+          Data Siswa
+        </label>
+
+        <div class="admin-form-group">
+          <label for="namaSiswa">
+            Nama siswa
+          </label>
+
+          <input
+            id="namaSiswa"
+            type="text"
+            placeholder="Masukkan nama siswa"
+          >
+        </div>
+
+
+        <div class="admin-form-group">
+          <label for="kelasSiswa">
+            Kelas
+          </label>
+
+          <select id="kelasSiswa">
+            <option value="">Pilih kelas</option>
+            <option value="VII">VII</option>
+            <option value="VIII">VIII</option>
+            <option value="IX">IX</option>
+            <option value="X">X</option>
+            <option value="XI">XI</option>
+            <option value="XII">XII</option>
+          </select>
+        </div>
+
+
+        <div class="admin-form-group">
+          <label for="kelompokSiswa">
+            Kelompok
+          </label>
+
+          <select id="kelompokSiswa">
+            <option value="">Pilih kelompok</option>
+            <option value="Putra">Putra</option>
+            <option value="Putri">Putri</option>
+          </select>
+        </div>
+
+
+        <button
+          id="simpanSiswa"
+          class="admin-main-button"
+        >
+          💾 Simpan Siswa
+        </button>
+
+
+        <button
+          id="kembaliDataSiswa"
+          class="back-button"
+        >
+          ← Kembali
+        </button>
+
+      </section>
+
+    </main>
+  `;
+
+  document.querySelector('#kembaliDataSiswa').addEventListener('click', () => {
+    halamanKelolaSiswa();
+  });
+
+  document.querySelector('#simpanSiswa').addEventListener('click', async () => {
+  const nama = document.querySelector('#namaSiswa').value.trim();
+  const kelas = document.querySelector('#kelasSiswa').value;
+  const kelompok = document.querySelector('#kelompokSiswa').value;
+
+  if (nama === '') {
+    alert('Nama siswa harus diisi.');
+    return;
+  }
+
+  if (kelas === '') {
+    alert('Silakan pilih kelas.');
+    return;
+  }
+
+  if (kelompok === '') {
+    alert('Silakan pilih kelompok.');
+    return;
+  }
+
+  const { error } = await supabase
+    .from('siswa')
+    .insert({
+      nama: nama,
+      kelas: kelas,
+      kelompok: kelompok
+    });
+
+  if (error) {
+  console.error('Gagal menambahkan siswa:', error);
+
+  alert(
+    'GAGAL MENAMBAHKAN SISWA\n\n' +
+    'Pesan: ' + error.message + '\n' +
+    'Detail: ' + (error.details || '-') + '\n' +
+    'Hint: ' + (error.hint || '-')
+  );
+
+  return;
+}
+
+  alert('Siswa berhasil ditambahkan.');
+
+  await muatDataSiswa();
+
+  halamanKelolaSiswa();
+});
+}
+async function hapusSiswaAdmin(id) {
+  const yakin = confirm(
+    'Apakah kamu yakin ingin menghapus siswa ini?'
+  );
+
+  if (!yakin) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from('siswa')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Gagal menghapus siswa:', error);
+
+    alert(
+      'GAGAL MENGHAPUS SISWA\n\n' +
+      'Pesan: ' + error.message + '\n' +
+      'Detail: ' + (error.details || '-') + '\n' +
+      'Hint: ' + (error.hint || '-')
+    );
+
+    return;
+  }
+
+  alert('Siswa berhasil dihapus.');
+
+  await muatDataSiswa();
+
+  halamanKelolaSiswa();
+}
+
+window.hapusSiswaAdmin = hapusSiswaAdmin;
+
 function halamanSiswa() {
   app.innerHTML = `
    <main class="page">
@@ -571,6 +1009,7 @@ function halamanStatusIzinSiswa(kelas, nama, izin) {
   });
 }
 async function halamanTanggalIzin(kelas, nama) {
+
   const izinBelumSelesai = dataIzin.find(izin =>
     izin.kelas === kelas &&
     izin.nama === nama &&
@@ -597,6 +1036,7 @@ async function halamanTanggalIzin(kelas, nama) {
         <div class="circle blue"></div>
 
         <div class="hero-content">
+
           <div class="label">
             KARTU IZIN BOARDING
           </div>
@@ -606,6 +1046,7 @@ async function halamanTanggalIzin(kelas, nama) {
           <p>
             ${nama} • Kelas ${kelas}
           </p>
+
         </div>
       </section>
 
@@ -622,7 +1063,10 @@ async function halamanTanggalIzin(kelas, nama) {
           style="width: 100%;"
         >
 
-        <label class="form-label" style="margin-top: 20px;">
+        <label
+          class="form-label"
+          style="margin-top: 20px;"
+        >
           Jam pergi
         </label>
 
@@ -633,23 +1077,34 @@ async function halamanTanggalIzin(kelas, nama) {
           style="width: 100%;"
         >
 
-        <label class="form-label" style="margin-top: 20px;">
+        <label
+          class="form-label"
+          style="margin-top: 20px;"
+        >
           Jenis izin
         </label>
 
         <div class="student-list">
 
-          <button id="izinLes" class="student-button">
+          <button
+            id="izinLes"
+            class="student-button"
+          >
             📚 Les
           </button>
 
-          <button id="izinLainnya" class="student-button">
+          <button
+            id="izinLainnya"
+            class="student-button"
+          >
             📝 Lainnya
           </button>
 
         </div>
 
         <div id="keteranganContainer"></div>
+
+        <div id="kontakOrtuContainer"></div>
 
         <button
           id="ajukanIzin"
@@ -674,28 +1129,88 @@ async function halamanTanggalIzin(kelas, nama) {
 
   let jenisIzin = '';
 
-  document.querySelector('#izinLes').addEventListener('click', () => {
-    jenisIzin = 'Les';
+  // =========================
+  // PILIH LES
+  // =========================
 
-    document.querySelector('#keteranganContainer').innerHTML = '';
-  });
+  document
+    .querySelector('#izinLes')
+    .addEventListener('click', () => {
 
-  document.querySelector('#izinLainnya').addEventListener('click', () => {
-    jenisIzin = 'Lainnya';
+      jenisIzin = 'Les';
 
-    document.querySelector('#keteranganContainer').innerHTML = `
-      <label class="form-label" style="margin-top: 20px;">
-        Keterangan
-      </label>
+      document.querySelector(
+        '#keteranganContainer'
+      ).innerHTML = '';
 
-      <textarea
-        id="keterangan"
-        class="student-button"
-        placeholder="Masukkan keterangan izin"
-        style="width: 100%; min-height: 100px; resize: vertical;"
-      ></textarea>
-    `;
-  });
+      document.querySelector(
+        '#kontakOrtuContainer'
+      ).innerHTML = '';
+
+    });
+
+
+  // =========================
+  // PILIH LAINNYA
+  // =========================
+
+  document
+    .querySelector('#izinLainnya')
+    .addEventListener('click', () => {
+
+      jenisIzin = 'Lainnya';
+
+      document.querySelector(
+        '#keteranganContainer'
+      ).innerHTML = `
+
+        <label
+          class="form-label"
+          style="margin-top: 20px;"
+        >
+          Keterangan
+        </label>
+
+        <textarea
+          id="keterangan"
+          class="student-button"
+          placeholder="Masukkan keterangan izin"
+          style="
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+          "
+        ></textarea>
+
+      `;
+
+      document.querySelector(
+        '#kontakOrtuContainer'
+      ).innerHTML = `
+
+        <label
+          class="form-label"
+          style="margin-top: 20px;"
+        >
+          Kontak Orang Tua
+        </label>
+
+        <input
+          id="kontakOrtu"
+          type="tel"
+          class="student-button"
+          placeholder="Contoh: 081234567890"
+          style="width: 100%;"
+        >
+
+      `;
+
+    });
+
+
+  // =========================
+  // AJUKAN IZIN
+  // =========================
 
   document
     .querySelector('#ajukanIzin')
@@ -707,59 +1222,119 @@ async function halamanTanggalIzin(kelas, nama) {
       const jamPergi =
         document.querySelector('#jamPergi').value;
 
+
+      // VALIDASI TANGGAL
+
       if (tanggal === '') {
-        alert('Silakan pilih tanggal izin terlebih dahulu.');
+        alert(
+          'Silakan pilih tanggal izin terlebih dahulu.'
+        );
         return;
       }
 
+
+      // VALIDASI JAM PERGI
+
       if (jamPergi === '') {
-        alert('Silakan masukkan jam pergi terlebih dahulu.');
+        alert(
+          'Silakan masukkan jam pergi terlebih dahulu.'
+        );
         return;
       }
+
+
+      // TANGGAL HARI INI
 
       const hariIni = new Date();
 
       const tanggalHariIni =
-        hariIni.getFullYear() + '-' +
-        String(hariIni.getMonth() + 1).padStart(2, '0') + '-' +
-        String(hariIni.getDate()).padStart(2, '0');
+        hariIni.getFullYear() +
+        '-' +
+        String(
+          hariIni.getMonth() + 1
+        ).padStart(2, '0') +
+        '-' +
+        String(
+          hariIni.getDate()
+        ).padStart(2, '0');
+
 
       if (tanggal < tanggalHariIni) {
-        alert('Tanggal izin tidak boleh sudah lewat.');
+
+        alert(
+          'Tanggal izin tidak boleh sudah lewat.'
+        );
+
         return;
       }
+
+
+      // JIKA IZIN HARI INI,
+      // JAM PERGI HARUS MASIH DI DEPAN
 
       if (tanggal === tanggalHariIni) {
 
         const sekarang = new Date();
 
         const waktuPergi =
-          new Date(`${tanggal}T${jamPergi}`);
+          new Date(
+            `${tanggal}T${jamPergi}`
+          );
 
         if (waktuPergi <= sekarang) {
-          alert('Jam pergi sudah lewat. Silakan pilih jam lain.');
+
+          alert(
+            'Jam pergi sudah lewat. Silakan pilih jam lain.'
+          );
+
           return;
         }
       }
 
+
+      // VALIDASI JENIS IZIN
+
       if (jenisIzin === '') {
-        alert('Silakan pilih jenis izin terlebih dahulu.');
+
+        alert(
+          'Silakan pilih jenis izin terlebih dahulu.'
+        );
+
         return;
       }
 
-      const kelompok =
-        getKelompokSiswa(kelas, nama);
 
-      const { data: siswa, error: siswaError } =
-        await supabase
-          .from('siswa')
-          .select('id')
-          .eq('nama', nama)
-          .eq('kelas', kelas)
-          .eq('kelompok', kelompok)
-          .single();
+      // CARI KELOMPOK SISWA
+
+      const kelompok =
+        getKelompokSiswa(
+          kelas,
+          nama
+        );
+
+
+      // CARI ID SISWA DARI DATABASE
+
+      const {
+        data: siswa,
+        error: siswaError
+      } = await supabase
+
+        .from('siswa')
+
+        .select('id')
+
+        .eq('nama', nama)
+
+        .eq('kelas', kelas)
+
+        .eq('kelompok', kelompok)
+
+        .single();
+
 
       if (siswaError || !siswa) {
+
         console.error(
           'Siswa tidak ditemukan:',
           siswaError
@@ -772,745 +1347,962 @@ async function halamanTanggalIzin(kelas, nama) {
         return;
       }
 
-      let statusOrangTua;
-      let keterangan;
+
+      // =========================
+      // DATA IZIN
+      // =========================
+
+      let keterangan = '';
+      let kontakOrtu = '';
+      let tokenOrtu = null;
+      let expiredAt = null;
+
+
+      // =========================
+      // JIKA LAINNYA
+      // =========================
 
       if (jenisIzin === 'Lainnya') {
 
         const inputKeterangan =
           document.querySelector('#keterangan');
 
+        const inputKontak =
+          document.querySelector('#kontakOrtu');
+
+
         if (!inputKeterangan) {
-          alert('Keterangan wajib diisi.');
+
+          alert(
+            'Keterangan wajib diisi.'
+          );
+
           return;
         }
+
 
         keterangan =
           inputKeterangan.value.trim();
 
+
         if (keterangan === '') {
-          alert('Keterangan wajib diisi.');
+
+          alert(
+            'Keterangan wajib diisi.'
+          );
+
           return;
         }
 
-        statusOrangTua = 'Menunggu';
 
-      } else {
+        if (!inputKontak) {
 
-        keterangan = '-';
-        statusOrangTua = 'Dikonfirmasi';
+          alert(
+            'Kontak orang tua wajib diisi.'
+          );
+
+          return;
+        }
+
+
+        kontakOrtu =
+          inputKontak.value.trim();
+
+
+        if (kontakOrtu === '') {
+
+          alert(
+            'Kontak orang tua wajib diisi.'
+          );
+
+          return;
+        }
+
+
+        // BUAT TOKEN UNTUK ORANG TUA
+
+        tokenOrtu =
+          buatTokenOrtu();
+
+
+        // LINK BERLAKU 30 MENIT
+
+        expiredAt =
+          new Date(
+            Date.now() +
+            30 * 60 * 1000
+          );
 
       }
 
-      const { data: izin, error } = await supabase
-  .from('izin')
-  .insert({
-    siswa_id: siswa.id,
-    tanggal: tanggal,
-    jam_pergi: jamPergi,
-    jenis_izin: jenisIzin,
-    keterangan: keterangan,
-    status_orang_tua:
-      jenisIzin === 'Lainnya'
-        ? 'menunggu'
-        : 'tidak_diperlukan',
-    status_pembina: 'menunggu'
-  })
-  .select(`
-    id,
-    tanggal,
-    jam_pergi,
-    jenis_izin,
-    keterangan,
-    status_orang_tua,
-    status_pembina,
-    jam_maksimal_kembali,
-    jam_kembali_aktual,
-    notifikasi_kembali_ortu
-  `)
-  .single();
+
+      // =========================
+      // SIMPAN KE SUPABASE
+      // =========================
+
+      const dataBaru = {
+
+        siswa_id: siswa.id,
+
+        tanggal: tanggal,
+
+        jam_pergi: jamPergi,
+
+        jenis_izin: jenisIzin,
+
+        keterangan:
+          keterangan || '-',
+
+        kontak_ortu:
+          kontakOrtu || null,
+
+        token_ortu:
+          tokenOrtu,
+
+        token_ortu_expired_at:
+          expiredAt
+            ? expiredAt.toISOString()
+            : null,
+
+        status_orang_tua:
+          jenisIzin === 'Lainnya'
+            ? 'menunggu'
+            : 'tidak_diperlukan',
+
+        status_pembina:
+          'menunggu'
+
+      };
+
+
+      const {
+        data: izin,
+        error
+      } = await supabase
+
+        .from('izin')
+
+        .insert(dataBaru)
+
+        .select(`
+          id,
+          tanggal,
+          jam_pergi,
+          jenis_izin,
+          keterangan,
+          status_orang_tua,
+          status_pembina,
+          jam_maksimal_kembali,
+          jam_kembali_aktual,
+          notifikasi_kembali_ortu
+        `)
+
+        .single();
+
+
       if (error) {
-  console.error('Gagal menyimpan izin:', error);
 
-  alert(
-    'GAGAL SIMPAN:\n' +
-    'Pesan: ' + error.message + '\n' +
-    'Detail: ' + (error.details || '-') + '\n' +
-    'Hint: ' + (error.hint || '-')
-  );
+        console.error(
+          'Gagal menyimpan izin:',
+          error
+        );
 
-  return;
-}
+        alert(
+          'GAGAL SIMPAN:\n' +
+          'Pesan: ' +
+          error.message +
+          '\n' +
+          'Detail: ' +
+          (error.details || '-') +
+          '\n' +
+          'Hint: ' +
+          (error.hint || '-')
+        );
+
+        return;
+      }
+
+
+      // =========================
+      // MASUKKAN KE DATA LOKAL
+      // =========================
 
       const izinBaru = {
-  id: izin.id,
-  nama: nama,
-  kelas: kelas,
-  kelompok: kelompok,
-  tanggal: izin.tanggal,
-  jamPergi: izin.jam_pergi?.slice(0, 5) || '',
-  jenis: izin.jenis_izin,
-  keterangan: izin.keterangan || '',
-  statusOrangTua:
-    izin.status_orang_tua === 'tidak_diperlukan'
-      ? 'Dikonfirmasi'
-      : izin.status_orang_tua === 'menunggu'
-      ? 'Menunggu'
-      : izin.status_orang_tua === 'dikonfirmasi'
-      ? 'Dikonfirmasi'
-      : izin.status_orang_tua === 'ditolak'
-      ? 'Ditolak'
-      : izin.status_orang_tua,
-  statusPembina:
-    izin.status_pembina === 'menunggu'
-      ? 'Menunggu'
-      : izin.status_pembina === 'diizinkan'
-      ? 'Diizinkan'
-      : izin.status_pembina,
-  jamMaksimal:
-    izin.jam_maksimal_kembali?.slice(0, 5) || '',
-  jamKembaliAktual:
-    izin.jam_kembali_aktual?.slice(0, 5) || '',
-  notifikasiKembaliOrtu:
-    izin.notifikasi_kembali_ortu || false
-};
 
-      dataIzin.unshift(izinBaru);
+        id: izin.id,
 
-      if (jenisIzin === 'Lainnya') {
+        nama: nama,
 
-        tampilkanPopup(
-          'Izin berhasil diajukan',
-          'Silakan tunggu konfirmasi orang tua.',
-          () => {
-            halamanStatusIzinSiswa(
-              kelas,
-              nama,
-              izinBaru
-            );
-          }
-        );
+        kelas: kelas,
 
-      } else {
+        kelompok: kelompok,
 
-        tampilkanPopup(
-          'Izin Les berhasil diajukan',
-          'Silakan tunggu persetujuan pembina.',
-          () => {
-            halamanStatusIzinSiswa(
-              kelas,
-              nama,
-              izinBaru
-            );
-          }
-        );
-      }
-    });
+        tanggal:
+          izin.tanggal,
+
+        jamPergi:
+          izin.jam_pergi?.slice(0, 5) || '',
+
+        jenis:
+          izin.jenis_izin,
+
+        keterangan:
+          izin.keterangan || '',
+
+        statusOrangTua:
+          izin.status_orang_tua ===
+          'tidak_diperlukan'
+            ? 'Dikonfirmasi'
+            : izin.status_orang_tua ===
+              'menunggu'
+            ? 'Menunggu'
+            : izin.status_orang_tua ===
+              'dikonfirmasi'
+            ? 'Dikonfirmasi'
+            : izin.status_orang_tua ===
+              'ditolak'
+            ? 'Ditolak'
+            : izin.status_orang_tua,
+
+        statusPembina:
+          izin.status_pembina ===
+          'menunggu'
+            ? 'Menunggu'
+            : izin.status_pembina ===
+              'diizinkan'
+            ? 'Diizinkan'
+            : izin.status_pembina,
+
+        jamMaksimal:
+          izin.jam_maksimal_kembali
+            ?.slice(0, 5) || '',
+
+        jamKembaliAktual:
+          izin.jam_kembali_aktual
+            ?.slice(0, 5) || '',
+
+        notifikasiKembaliOrtu:
+          izin.notifikasi_kembali_ortu ||
+          false
+
+      };
+
+
+      dataIzin.unshift(
+        izinBaru
+      );
+
+// =========================
+// HASIL PENGAJUAN IZIN
+// =========================
+
+if (jenisIzin === 'Lainnya') {
+
+  // Ubah nomor menjadi format internasional
+  let nomorWhatsApp = kontakOrtu.replace(/\D/g, '');
+
+  if (nomorWhatsApp.startsWith('0')) {
+    nomorWhatsApp = '62' + nomorWhatsApp.substring(1);
+  }
+
+  // Buat link konfirmasi orang tua
+  const linkKonfirmasi =
+    `${window.location.origin}${window.location.pathname}?token=${tokenOrtu}`;
+
+  const pesan = `
+Halo Orang Tua,
+
+Ada pengajuan izin dari ${nama} melalui Kartu Izin Boarding.
+
+📅 Tanggal: ${tanggal}
+⏰ Jam pergi: ${jamPergi}
+📝 Jenis izin: ${jenisIzin}
+📌 Keterangan: ${keterangan}
+
+Silakan lakukan konfirmasi izin melalui link berikut:
+
+${linkKonfirmasi}
+
+Di halaman tersebut tersedia pilihan:
+✅ Izinkan
+❌ Tidak Izinkan
+
+Terima kasih.
+`;
+
+  const linkWhatsApp =
+    `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
+
+  // Buka WhatsApp
+  window.open(linkWhatsApp, '_blank');
+
+  tampilkanPopup(
+    'Izin berhasil diajukan',
+    'WhatsApp orang tua sudah dibuka. Silakan kirim pesan tersebut.',
+    () => {
+
+      halamanStatusIzinSiswa(
+        kelas,
+        nama,
+        izinBaru
+      );
+
+    }
+  );
+
+} else {
+  // =========================
+  // LES
+  // =========================
+
+  tampilkanPopup(
+    'Izin Les berhasil diajukan',
+    'Silakan tunggu persetujuan pembina.',
+    () => {
+
+      halamanStatusIzinSiswa(
+        kelas,
+        nama,
+        izinBaru
+      );
+
+    }
+  );
+
+}
+});
+
+      
+  // =========================
+  // TOMBOL KEMBALI
+  // =========================
 
   document
     .querySelector('#kembaliTanggal')
-    .addEventListener('click', () => {
-      halamanNamaSiswa(kelas);
-    });
+    .addEventListener(
+      'click',
+      () => {
+
+        halamanNamaSiswa(kelas);
+
+      }
+    );
 }
+function buatTokenOrtu() {
+  const karakter =
+    'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-function halamanOrangTua() {
-  app.innerHTML = `
-   <main class="page">
+  let token = '';
 
-    <section class="hero">
-     <div class="circle pink"></div>
-     <div class="circle blue"></div>
-
-     <div class="hero-content">
-      <div class="label">
-       KARTU IZIN BOARDING
-      </div>
-
-      <h1>Orang Tua</h1>
-
-      <p>
-       Pilih kelas anak
-      </p>
-     </div>
-    </section>
-
-    <section class="form-card">
-
-     <label class="form-label">
-      Pilih Kelas
-     </label>
-
-     <div class="class-grid">
-
-      <button id="ortuVII" class="class-button">VII</button>
-      <button id="ortuVIII" class="class-button">VIII</button>
-      <button id="ortuIX" class="class-button">IX</button>
-      <button id="ortuX" class="class-button">X</button>
-      <button id="ortuXI" class="class-button">XI</button>
-      <button id="ortuXII" class="class-button">XII</button>
-    </div>
-      <button
-      id="kembaliOrang"
-      class="student-button"
-      style="margin-top: 15px;"
-      >
-  ← Kembali
-</button>
-
-    <div class="info">
-     Pilih kelas sesuai dengan kelas anak.
-    </div>
-
-  </section>
-</main>
-`;
-document.querySelector('#ortuVII').addEventListener('click', () => {
-    halamanNamaAnak('VII');
-  });
-
-  document.querySelector('#ortuVIII').addEventListener('click', () => {
-    halamanNamaAnak('VIII');
-  });
-
-  document.querySelector('#ortuIX').addEventListener('click', () => {
-    halamanNamaAnak('IX');
-  });
-
-  document.querySelector('#ortuX').addEventListener('click', () => {
-    halamanNamaAnak('X');
-  });
-
-  document.querySelector('#ortuXI').addEventListener('click', () => {
-    halamanNamaAnak('XI');
-  });
-
-  document.querySelector('#ortuXII').addEventListener('click', () => {
-    halamanNamaAnak('XII');
-  });
-  document.querySelector('#kembaliOrang').onclick = halamanLogin;
-
-}
-function halamanNamaAnak(kelas) {
-
-  if (!dataSiswa[kelas]) {
-    alert('Data siswa untuk kelas ini belum tersedia.');
-    halamanOrangTua();
-    return;
+  for (let i = 0; i < 12; i++) {
+    token += karakter[
+      Math.floor(Math.random() * karakter.length)
+    ];
   }
 
-  const students = dataSiswa;
-
-  app.innerHTML = `
-   <main class="page">
-
-    <section class="hero">
-     <div class="circle pink"></div>
-     <div class="circle blue"></div>
-
-     <div class="hero-content">
-      <div class="label">
-       KARTU IZIN BOARDING
-      </div>
-
-      <h1>Kelas ${kelas}</h1>
-
-      <p>
-       Pilih nama anak
-      </p>
-    </div>
-  </section>
-
-  <section class="form-card">
-
-  <label class="form-label">
-  Pilih nama anak
-  </label>
-
-  <div class="student-list">
-
-  <button
-    id="putraOrtu"
-    class="student-button"
-  >
-    🧑🏻 Putra
-  </button>
-
-  <button
-    id="putriOrtu"
-    class="student-button"
-  >
-    🧕🏻 Putri
-  </button>
-
-  </div>
-
-  <div id="daftarNamaAnak"></div>
-    <button
-    id="kembaliNamaAnak"
-    class="student-button"
-    style="margin-top: 15px;"
-    >
-    ← Kembali
-    </button>
-  </section>
- </main>
-`;
-document.querySelector('#putraOrtu').addEventListener('click', () => {
-  tampilkanNamaAnak('Putra', kelas, students);
-});
-
-document.querySelector('#putriOrtu').addEventListener('click', () => {
-  tampilkanNamaAnak('Putri', kelas, students);
-});
-document.querySelector('#kembaliNamaAnak').addEventListener('click', () => {
-  halamanOrangTua();
-});
+  return token;
 }
+async function halamanKonfirmasiOrtu(token) {
 
-function tampilkanNamaAnak(kelompok, kelas, students) {
-  const daftarNama = students[kelas][kelompok];
+  const { data: izin, error } = await supabase
+    .from('izin')
+    .select(`
+      id,
+      tanggal,
+      jam_pergi,
+      jenis_izin,
+      keterangan,
+      status_orang_tua,
+      token_ortu_expired_at,
+      siswa (
+        nama,
+        kelas,
+        kelompok
+      )
+    `)
+    .eq('token_ortu', token)
+    .maybeSingle();
 
-  document.querySelector('#daftarNamaAnak').innerHTML = `
-   <label class="form-label" style="margin-top: 25px;">
-    Pilih nama anak
-   </label>
 
-   <div class="student-list">
-    ${daftarNama.map((nama, index) => `
-      <button
-       id="anak${index}"
-       class="student-button"
-      >
-      🧑‍🎓 ${nama}
-        </button>
-      `).join('')}
-    </div>
-  `;
+  // =========================
+  // IZIN TIDAK DITEMUKAN
+  // =========================
 
-  daftarNama.forEach((nama, index) => {
-    document.querySelector(`#anak${index}`).addEventListener('click', () => {
+  if (error || !izin) {
 
-     const izinMenunggu = dataIzin.find(izin =>
-  izin.kelas === kelas &&
-  izin.nama === nama &&
-  izin.jenis === 'Lainnya' &&
-  izin.statusOrangTua === 'Menunggu'
-); 
+    app.innerHTML = `
 
-      const izinSudahKembali = dataIzin.find(izin =>
-        izin.kelas === kelas &&
-        izin.nama === nama &&
-        izin.notifikasiKembaliOrtu === true
-      );
-
-      app.innerHTML = `
-       <main class="page">
-        <section class="hero">
-      <div class="circle pink"></div>
-          <div class="circle blue"></div>
-
-          <div class="hero-content">
-            <div class="label">
-              KARTU IZIN BOARDING
-            </div>
-
-            <h1>${nama}</h1>
-
-            <p>
-              Kelas ${kelas}
-            </p>
-          </div>
-        </section>
+      <main class="page">
 
         <section class="form-card">
 
-          <label class="form-label">
-            Menu Orang Tua
-          </label>
+          <h2>
+            Permohonan Tidak Ditemukan
+          </h2>
 
-          <div class="student-list">
+          <div class="info" style="margin-top: 15px;">
 
-           ${izinSudahKembali ? `
-            <div class="notification-card">
-             <h3>🔔 Anak sudah kembali</h3>
-             <p>
-                ${nama} telah kembali pada pukul
-                <strong>${izinSudahKembali.jamKembaliAktual}</strong>.
-            </p>
-
-            <button id="tutupNotifKembali" class="student-button">
-             Oke
-            </button>
-           </div>
-          ` : ''}
-
-            <button
-              id="permintaanOrtu"
-              class="student-button"
-            >
-              🔔 Permintaan Izin
-              ${
-                izinMenunggu
-                ? '🟡'
-                : ''
-              }
-            </button>
-
-            <button
-              id="riwayatOrtu"
-              class="student-button"
-            >
-              🔵 Riwayat
-            </button>
+            Link permohonan tidak valid
+            atau sudah tidak tersedia.
 
           </div>
-
-          <button
-            id="kembaliMenuOrtu"
-            class="student-button"
-            style="margin-top: 15px;"
-          >
-            ← Kembali
-          </button>
 
         </section>
 
       </main>
+
     `;
-    
-    if (izinSudahKembali) {
-  document.querySelector('#tutupNotifKembali').addEventListener('click', async () => {
 
-    const { error } = await supabase
-      .from('izin')
-      .update({
-        notifikasi_kembali_ortu: false
-      })
-      .eq('id', izinSudahKembali.id);
+    return;
+  }
 
-    if (error) {
-      console.error('Gagal menandai notifikasi:', error);
-      alert('Notifikasi gagal diperbarui.');
-      return;
-    }
 
-    izinSudahKembali.notifikasiKembaliOrtu = false;
+  // =========================
+  // CEK KEDALUWARSA
+  // =========================
 
-    tampilkanPopup(
-      'Notifikasi dibaca',
-      'Notifikasi anak sudah kembali telah dibaca.',
-      () => {
-        tampilkanNamaAnak(kelompok, kelas, students);
-      }
+  const sekarang = new Date();
+
+  const expired =
+    new Date(
+      izin.token_ortu_expired_at
     );
-  });
-}
 
-        
-    document.querySelector('#permintaanOrtu').addEventListener('click', () => {
-      halamanKonfirmasiOrangTua(kelas, nama);
-    });
 
-    document.querySelector('#riwayatOrtu').addEventListener('click', () => {
-      halamanRiwayatOrangTua(kelas, nama);
-    });
+  if (sekarang > expired) {
 
-    document.querySelector('#kembaliMenuOrtu').addEventListener('click', () => {
-      halamanNamaAnak(kelas);
-    });
-
-  });
-});
-}
-
-function halamanKonfirmasiOrangTua(kelas, nama) {
-   const izin = dataIzin.find(item =>
-    item.kelas === kelas &&
-    item.nama === nama &&
-    item.jenis === 'Lainnya' &&
-    item.statusOrangTua === 'Menunggu' 
-   );
-
-   if (!izin) {
     app.innerHTML = `
-    <main class="page">
-     <section class="hero">
-     <div class="circle pink"></div>
+
+      <main class="page">
+
+        <section class="form-card">
+
+          <h2>
+            Link Sudah Kedaluwarsa
+          </h2>
+
+          <div
+            class="info"
+            style="margin-top: 15px;"
+          >
+
+            Link konfirmasi ini
+            sudah tidak dapat digunakan.
+
+          </div>
+
+          <p
+            style="
+              margin-top: 15px;
+              color: #777;
+              font-size: 14px;
+            "
+          >
+            Silakan minta siswa
+            mengajukan permohonan baru.
+
+          </p>
+
+        </section>
+
+      </main>
+
+    `;
+
+    return;
+  }
+
+
+  // =========================
+  // SUDAH DIPUTUSKAN
+  // =========================
+
+  if (
+    izin.status_orang_tua !== 'menunggu'
+  ) {
+
+    const sudahDisetujui =
+      izin.status_orang_tua ===
+      'dikonfirmasi';
+
+
+    app.innerHTML = `
+
+      <main class="page">
+
+        <section class="hero">
+
+          <div class="circle pink"></div>
           <div class="circle blue"></div>
 
           <div class="hero-content">
+
             <div class="label">
               KARTU IZIN BOARDING
             </div>
 
-            <h1>Tidak Ada Izin</h1>
+            <h1>
+              Permohonan Sudah Diproses
+            </h1>
 
             <p>
-              ${nama} • Kelas ${kelas}
+              ${izin.siswa.nama}
             </p>
+
           </div>
+
         </section>
+
 
         <section class="form-card">
 
           <div class="info">
-            Belum ada permintaan izin yang menunggu konfirmasi.
+
+            Status konfirmasi orang tua:
+
+            <br><br>
+
+            <strong>
+              ${
+                sudahDisetujui
+                  ? '✅ Diizinkan'
+                  : '❌ Tidak Diizinkan'
+              }
+            </strong>
+
           </div>
 
-          <button
-            id="kembaliKonfirmasi"
-            class="student-button"
-            style="margin-top: 15px;"
-          >
-            ← Kembali
-          </button>
-
         </section>
-      </main>
-    `;
 
-    document.querySelector('#kembaliKonfirmasi').addEventListener('click', () => {
-      halamanNamaAnak(kelas);
-    });
+      </main>
+
+    `;
 
     return;
   }
 
+
+  // =========================
+  // HALAMAN KONFIRMASI
+  // =========================
+
   app.innerHTML = `
+
     <main class="page">
 
       <section class="hero">
+
         <div class="circle pink"></div>
         <div class="circle blue"></div>
 
         <div class="hero-content">
+
           <div class="label">
             KARTU IZIN BOARDING
           </div>
 
-          <h1>Konfirmasi</h1>
+          <h1>
+            Konfirmasi Izin
+          </h1>
 
           <p>
-            ${nama} • Kelas ${kelas}
+            Permohonan izin dari
+            ${izin.siswa.nama}
           </p>
+
         </div>
+
       </section>
+
 
       <section class="form-card">
 
-        <label class="form-label">
-          Permintaan Izin
-        </label>
+        <div class="info">
 
-        <div class="student-button">
-
-          <strong>Nama</strong>
-          <br>
-          ${izin.nama}
+          <strong>
+            ${izin.siswa.nama}
+          </strong>
 
           <br><br>
 
-          <strong>Jenis Izin</strong>
+          📚 Kelas:
+          ${izin.siswa.kelas}
+
           <br>
-          ${izin.jenis}
 
-          <br><br>
+          🏠 Kelompok:
+          ${izin.siswa.kelompok}
 
-          <strong>Keterangan</strong>
           <br>
-          ${izin.keterangan}
 
-          <br><br>
-
-          <strong>Tanggal</strong>
-          <br>
+          📅 Tanggal:
           ${izin.tanggal}
 
-          <br><br>
-
-          <strong>Status</strong>
           <br>
-          🟡 Menunggu konfirmasi orang tua
 
-        </div>
+          🚶 Jam pergi:
+          ${izin.jam_pergi.slice(0, 5)}
 
-        <button
-          id="konfirmasi"
-          class="student-button"
-          style="margin-top: 15px;"
-        >
-          ✅ Konfirmasi
-        </button>
+          <br>
 
-        <button
-          id="tidakKonfirmasi"
-          class="student-button"
-        >
-          ❌ Tidak
-        </button>
-
-        <button
-          id="kembaliKonfirmasi"
-          class="student-button"
-        >
-          ← Kembali
-        </button>
-
-      </section>
-    </main>
-  `;
-
-  document.querySelector('#konfirmasi').addEventListener('click', async () => {
-
-  const { error } = await supabase
-    .from('izin')
-    .update({
-      status_orang_tua: 'Dikonfirmasi'
-    })
-    .eq('id', izin.id);
-
-  if (error) {
-    console.error('Gagal mengonfirmasi izin:', error);
-    alert('Konfirmasi izin gagal disimpan.');
-    return;
-  }
-
-  izin.statusOrangTua = 'Dikonfirmasi';
-
-  tampilkanPopup(
-    'Izin telah dikonfirmasi',
-    'Izin telah dikonfirmasi dan diteruskan ke pembina.',
-    () => {
-      halamanNamaAnak(kelas);
-    }
-  );
-});
-    
-
-  document.querySelector('#tidakKonfirmasi').addEventListener('click', async () => {
-
-  const { error } = await supabase
-    .from('izin')
-    .update({
-      status_orang_tua: 'Ditolak'
-    })
-    .eq('id', izin.id);
-
-  if (error) {
-    console.error('Gagal menolak izin:', error);
-    alert('Penolakan izin gagal disimpan.');
-    return;
-  }
-
-  izin.statusOrangTua = 'Ditolak';
-
-  tampilkanPopup(
-    'Izin tidak dikonfirmasi',
-    'Permintaan izin tidak dikonfirmasi oleh orang tua.',
-    () => {
-      halamanNamaAnak(kelas);
-    }
-  );
-});
-  
-
-  document.querySelector('#kembaliKonfirmasi').addEventListener('click', () => {
-    halamanNamaAnak(kelas);
-  });
-}
-function halamanRiwayatOrangTua(kelas, nama) {
-  const riwayat = dataIzin.filter(izin =>
-    izin.kelas === kelas &&
-    izin.nama === nama &&
-    izin.statusPembina === 'Diizinkan' &&
-    izin.jamKembaliAktual
-  );
-
-  app.innerHTML = `
-   <main class="page">
-
-   <section class="hero">
-        <div class="circle pink"></div>
-        <div class="circle blue"></div>
-
-        <div class="hero-content">
-          <div class="label">
-            KARTU IZIN BOARDING
-          </div>
-
-          <h1>Riwayat</h1>
-
-          <p>
-            ${nama} • Kelas ${kelas}
-          </p>
-        </div>
-      </section>
-
-      <section class="form-card">
-
-        <label class="form-label">
-          Riwayat Izin
-        </label>
-
-        <div class="student-list">
+          📝 Jenis izin:
+          ${izin.jenis_izin}
 
           ${
-            riwayat.length === 0
-            ? `
-              <div class="info">
-                Belum ada riwayat izin.
-              </div>
-            `
-            : riwayat.map(izin => `
-              <div class="student-button">
-
-                <strong>${izin.nama}</strong>
-
-                <br><br>
-
-                <small>
-                  📅 Tanggal: ${izin.tanggal}
-                </small>
-
+            izin.keterangan
+              ? `
                 <br>
-
-                <small>
-                  ⏰ Jam pergi: ${izin.jamPergi}
-                </small>
-
-                <br>
-
-                <small>
-                  📝 Jenis izin: ${izin.jenis}
-                </small>
-
-                <br>
-
-                <small>
-                  📄 Keterangan: ${izin.keterangan || '-'}
-                </small>
-
-                <br>
-
-                <small>
-                  ⏰ Maksimal kembali: ${izin.jamMaksimal}
-                </small>
-
-                <br>
-
-                <small>
-                  🏠 Kembali sebenarnya: ${izin.jamKembaliAktual}
-                </small>
-
-              </div>
-            `).join('')
+                📌 Keterangan:
+                ${izin.keterangan}
+              `
+              : ''
           }
 
         </div>
 
+
         <button
-          id="kembaliRiwayatOrtu"
+          id="izinkanOrtu"
+          class="student-button"
+          style="
+            margin-top: 20px;
+          "
+        >
+          ✅ Izinkan
+        </button>
+
+
+        <button
+          id="tolakOrtu"
+          class="student-button"
+          style="
+            margin-top: 10px;
+          "
+        >
+          ❌ Tidak Izinkan
+        </button>
+
+      </section>
+
+    </main>
+
+  `;
+
+
+  // =========================
+  // TOMBOL IZINKAN
+  // =========================
+
+  document
+    .querySelector('#izinkanOrtu')
+    .addEventListener(
+      'click',
+      async () => {
+
+        const { error } =
+          await supabase
+
+            .from('izin')
+
+            .update({
+              status_orang_tua:
+                'dikonfirmasi'
+            })
+
+            .eq('id', izin.id);
+
+
+        if (error) {
+
+          console.error(
+            'Gagal mengonfirmasi izin:',
+            error
+          );
+
+          alert(
+            'Konfirmasi izin gagal.'
+          );
+
+          return;
+        }
+
+
+        tampilkanPopup(
+          'Izin Disetujui',
+          'Permohonan izin sudah diteruskan kepada pembina.',
+          () => {
+
+            halamanKonfirmasiOrtu(
+              token
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  // =========================
+  // TOMBOL TIDAK IZINKAN
+  // =========================
+
+  document
+    .querySelector('#tolakOrtu')
+    .addEventListener(
+      'click',
+      async () => {
+
+        const { error } =
+          await supabase
+
+            .from('izin')
+
+            .update({
+              status_orang_tua:
+                'ditolak'
+            })
+
+            .eq('id', izin.id);
+
+
+        if (error) {
+
+          console.error(
+            'Gagal menolak izin:',
+            error
+          );
+
+          alert(
+            'Penolakan izin gagal.'
+          );
+
+          return;
+        }
+
+
+        tampilkanPopup(
+          'Izin Ditolak',
+          'Permohonan izin telah ditolak.',
+          () => {
+
+            halamanKonfirmasiOrtu(
+              token
+            );
+
+          }
+        );
+
+      }
+    );
+
+}
+
+
+
+function halamanPembina() {
+  app.innerHTML = `
+
+    <main class="page">
+
+      <section class="hero">
+
+        <div class="circle pink"></div>
+        <div class="circle blue"></div>
+
+        <div class="hero-content">
+
+          <div class="label">
+            KARTU IZIN BOARDING
+          </div>
+
+          <h1>Pembina</h1>
+
+          <p>
+            Masukkan kode pembina untuk melanjutkan.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <section class="form-card">
+
+        <label class="form-label">
+          Login Pembina
+        </label>
+
+        <p class="admin-description">
+          Masukkan kode khusus pembina.
+        </p>
+
+        <input
+          id="kodePembina"
+          type="password"
+          placeholder="Masukkan kode pembina"
+        />
+
+
+        <button
+          id="masukPembina"
+          class="admin-main-button"
+        >
+          🔐 Masuk
+        </button>
+
+
+        <button
+          id="kembaliPembina"
+          class="back-button"
+        >
+          ← Kembali
+        </button>
+
+      </section>
+
+    </main>
+
+  `;
+
+
+  document
+    .querySelector('#masukPembina')
+    .addEventListener('click', () => {
+
+      const kode =
+        document.querySelector('#kodePembina').value.trim();
+
+
+      if (kode === '') {
+
+        alert(
+          'Silakan masukkan kode pembina.'
+        );
+
+        return;
+      }
+
+
+      if (kode !== 'PEMBINAASRAMA') {
+
+        alert(
+          'Kode pembina salah.'
+        );
+
+        return;
+      }
+
+
+      // Jika kode benar
+      // masuk ke pilihan kelas
+
+      halamanPilihKelasPembina();
+
+    });
+
+
+  document
+    .querySelector('#kembaliPembina')
+    .addEventListener('click', () => {
+
+      halamanLogin();
+
+    });
+
+}
+function halamanPilihKelasPembina() {
+
+  app.innerHTML = `
+
+    <main class="page">
+
+      <section class="hero">
+
+        <div class="circle pink"></div>
+        <div class="circle blue"></div>
+
+        <div class="hero-content">
+
+          <div class="label">
+            KARTU IZIN BOARDING
+          </div>
+
+          <h1>Pembina</h1>
+
+          <p>
+            Pilih kelas dan kelompok asrama.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <section class="form-card">
+
+        <label class="form-label">
+          Pilih Kelas
+        </label>
+
+
+        <div class="class-grid">
+
+          <button
+            id="kelasVII"
+            class="class-button"
+          >
+            VII
+          </button>
+
+          <button
+            id="kelasVIII"
+            class="class-button"
+          >
+            VIII
+          </button>
+
+          <button
+            id="kelasIX"
+            class="class-button"
+          >
+            IX
+          </button>
+
+          <button
+            id="kelasX"
+            class="class-button"
+          >
+            X
+          </button>
+
+          <button
+            id="kelasXI"
+            class="class-button"
+          >
+            XI
+          </button>
+
+          <button
+            id="kelasXII"
+            class="class-button"
+          >
+            XII
+          </button>
+
+        </div>
+
+
+        <div class="info">
+
+          Pilih kelas sesuai dengan kelas
+          yang ingin dikelola.
+
+        </div>
+
+
+        <button
+          id="kembaliPilihKelas"
           class="student-button"
           style="margin-top: 15px;"
         >
@@ -1520,93 +2312,59 @@ function halamanRiwayatOrangTua(kelas, nama) {
       </section>
 
     </main>
+
   `;
 
-  document.querySelector('#kembaliRiwayatOrtu').addEventListener('click', () => {
-    halamanNamaAnak(kelas);
-  });
-}
-function halamanPembina() {
-  app.innerHTML = `
 
-   <main class="page">
-    <section class="hero">
-     <div class="circle pink"></div>
-     <div class="circle blue"></div>
-
-     <div class="hero-content">
-     <div class="label">
-      KARTU IZIN BOARDING
-     </div>
-
-     <h1>Pembina</h1>
-
-     <p>
-      Pilih kelas dan kelompok asrama
-     </p>
-    </div>
-  </section>
-
-  <section class="form-card">
-
-    <label class="form-label">
-     Pilih Kelas
-    </label>
-
-    <div class="class-grid">
-
-  <button id="kelasVII" class="class-button">VII</button>
-  <button id="kelasVIII" class="class-button">VIII</button>
-  <button id="kelasIX" class="class-button">IX</button>
-  <button id="kelasX" class="class-button">X</button>
-  <button id="kelasXI" class="class-button">XI</button>
-  <button id="kelasXII" class="class-button">XII</button>
-
-  </div>
-
-  <button
-  id="kembaliPembina"
-  class="student-button"
-  style="margin-top: 15px;"
->
-  ← Kembali
-</button>
+  document
+    .querySelector('#kelasVII')
+    .addEventListener('click', () => {
+      pilihKelasPembina('VII');
+    });
 
 
-    <div class="info">
-     Setelah memilih kelas, pilih Putra atau Putri.
-    </div>
+  document
+    .querySelector('#kelasVIII')
+    .addEventListener('click', () => {
+      pilihKelasPembina('VIII');
+    });
 
-   </section>
-  </main>
- `;
 
- document.querySelector('#kelasVII').addEventListener('click', () => {
-  pilihKelasPembina('VII');
-});
+  document
+    .querySelector('#kelasIX')
+    .addEventListener('click', () => {
+      pilihKelasPembina('IX');
+    });
 
-document.querySelector('#kelasVIII').addEventListener('click', () => {
-  pilihKelasPembina('VIII');
-});
 
-document.querySelector('#kelasIX').addEventListener('click', () => {
-  pilihKelasPembina('IX');
-});
+  document
+    .querySelector('#kelasX')
+    .addEventListener('click', () => {
+      pilihKelasPembina('X');
+    });
 
-document.querySelector('#kelasX').addEventListener('click', () => {
-  pilihKelasPembina('X');
-});
 
-document.querySelector('#kelasXI').addEventListener('click', () => {
-  pilihKelasPembina('XI');
-});
+  document
+    .querySelector('#kelasXI')
+    .addEventListener('click', () => {
+      pilihKelasPembina('XI');
+    });
 
-document.querySelector('#kelasXII').addEventListener('click', () => {
-  pilihKelasPembina('XII');
-});
-document.querySelector('#kembaliPembina').addEventListener('click', () => {
-  halamanLogin();
-});
+
+  document
+    .querySelector('#kelasXII')
+    .addEventListener('click', () => {
+      pilihKelasPembina('XII');
+    });
+
+
+  document
+    .querySelector('#kembaliPilihKelas')
+    .addEventListener('click', () => {
+
+      halamanPembina();
+
+    });
 
 }
  function pilihKelasPembina(kelas) {
@@ -1682,7 +2440,7 @@ document.querySelector('#kembaliPembina').addEventListener('click', () => {
     halamanDashboardPembina(kelas, 'Putri');
    });
    document.querySelector('#kembaliKelompokPembina').addEventListener('click', () => {
-  halamanPembina();
+  halamanPilihKelasPembina();
   });
  }
 function halamanDashboardPembina(kelas, kelompok) {
@@ -1929,7 +2687,7 @@ function halamanDetailPermintaan(kelas, kelompok, izin) {
   .from('izin')
   .update({
     jam_maksimal_kembali: jamKembali,
-    status_pembina: 'Diizinkan'
+    status_pembina: 'diizinkan'
   })
   .eq('id', izin.id);
 
@@ -2365,10 +3123,39 @@ statusPembina:
 }
 
 async function mulaiAplikasi() {
+
   await muatDataSiswa();
+
   await muatDataIzin();
 
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const token =
+    params.get('token');
+
+
+  // Jika ada token,
+  // langsung buka halaman orang tua
+
+  if (token) {
+
+    await halamanKonfirmasiOrtu(
+      token
+    );
+
+    return;
+  }
+
+
+  // Jika tidak ada token,
+  // tampilkan login biasa
+
   halamanLogin();
+
 }
 
 mulaiAplikasi();
