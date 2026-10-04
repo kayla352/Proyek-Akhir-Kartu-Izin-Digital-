@@ -1623,7 +1623,7 @@ Silakan lakukan konfirmasi izin melalui link berikut:
 
 ${linkKonfirmasi}
 
-Di halaman tersebut tersedia pilihan:
+Pilih:
 ✅ Izinkan
 ❌ Tidak Izinkan
 
@@ -1633,13 +1633,17 @@ Terima kasih.
   const linkWhatsApp =
     `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
-  // Buka WhatsApp
-  window.open(linkWhatsApp, '_blank');
-
+  // Tampilkan popup terlebih dahulu
   tampilkanPopup(
     'Izin berhasil diajukan',
-    'WhatsApp orang tua sudah dibuka. Silakan kirim pesan tersebut.',
+    'Tekan Oke untuk membuka WhatsApp orang tua.',
     () => {
+
+      // Buka WhatsApp setelah pengguna menekan tombol Oke
+      window.open(
+        linkWhatsApp,
+        '_blank'
+      );
 
       halamanStatusIzinSiswa(
         kelas,
@@ -1650,7 +1654,6 @@ Terima kasih.
     }
   );
 
-} else {
   // =========================
   // LES
   // =========================
