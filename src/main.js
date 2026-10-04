@@ -1263,18 +1263,7 @@ async function halamanTanggalIzin(kelas, nama) {
 
         <div id="keteranganContainer"></div>
 
-        <label class="form-label" style="margin-top: 20px;">
-          Kontak Orang Tua
-        </label>
-
-        <input
-          id="kontakOrtu"
-          type="tel"
-          class="student-button"
-          placeholder="Contoh: 081234567890"
-          style="width: 100%;"
-        />
-
+        
         <button
           id="ajukanIzin"
           class="student-button"
@@ -1412,14 +1401,6 @@ async function halamanTanggalIzin(kelas, nama) {
         keterangan =
           inputKeterangan.value.trim();
 
-        const kontakOrtu =
-          document.querySelector('#kontakOrtu').value.trim();
-
-        if (kontakOrtu === '') {
-          alert('Kontak orang tua wajib diisi.');
-          return;
-        }
-
         if (keterangan === '') {
           alert('Keterangan wajib diisi.');
           return;
@@ -1475,11 +1456,7 @@ async function halamanTanggalIzin(kelas, nama) {
         return;
       }
 
-      const tokenOrtu = buatTokenOrtu();
-
-      const expiredAt = new Date(
-        Date.now() + 30 * 60 * 1000
-      );
+    
 
       const izinBaru = {
         id: izin.id,
@@ -1557,20 +1534,6 @@ async function halamanTanggalIzin(kelas, nama) {
     });
 }
 
-function buatTokenOrtu() {
-  const karakter =
-    'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-
-  let token = '';
-
-  for (let i = 0; i < 12; i++) {
-    token += karakter[
-      Math.floor(Math.random() * karakter.length)
-    ];
-  }
-
-  return token;
-}
 
 function halamanOrangTua() {
   app.innerHTML = `
