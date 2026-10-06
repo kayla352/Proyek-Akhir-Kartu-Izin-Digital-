@@ -1,5 +1,6 @@
 import "./style.css";
 import { supabase } from "./supabase.js";
+import * as XLSX from "xlsx";
 
 const app = document.querySelector('#app');
 let dataIzin = [];
@@ -474,7 +475,50 @@ async function halamanKelolaSiswa() {
           + Tambah Siswa
         </button>
 
-        <div id="daftarSiswa" style="margin-top: 20px;">
+        <div
+          style="
+            margin-top:20px;
+            padding:14px;
+            background:#f8f8f8;
+            border-radius:12px;
+          "
+        >
+          <label
+            style="
+              display:flex;
+              align-items:center;
+              gap:10px;
+              font-weight:600;
+              cursor:pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="pilihSemuaSiswa"
+              style="width:18px;height:18px;"
+            >
+
+            Pilih Semua Siswa
+          </label>
+        </div>
+
+        <button
+          id="hapusYangDipilih"
+          class="delete-button"
+          style="
+            width:100%;
+            margin-top:12px;
+            padding:12px;
+            display:none;
+          "
+        >
+          🗑️ Hapus yang Dipilih
+        </button>
+
+        <div
+          id="daftarSiswa"
+          style="margin-top:20px;"
+        >
           <p style="text-align:center; color:#777;">
             Memuat data siswa...
           </p>
@@ -528,208 +572,485 @@ async function halamanKelolaSiswa() {
     return;
   }
 
-  document.querySelector('#daftarSiswa').innerHTML = data.map((siswa) => `
-   <div class="admin-student-card">
+  document.querySelector('#daftarSiswa').innerHTML =
+    data.map((siswa) => `
+      <div
+        class="admin-student-card"
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+        "
+      >
 
-  <div>
-    <strong>${siswa.nama}</strong>
+        <input
+          type="checkbox"
+          class="pilih-siswa"
+          value="${siswa.id}"
+          style="
+            width:18px;
+            height:18px;
+            flex-shrink:0;
+          "
+        >
 
-    <small>
-      Kelas ${siswa.kelas} • ${siswa.kelompok}
-    </small>
-  </div>
+        <div style="flex:1;">
+          <strong>
+            ${siswa.nama}
+          </strong>
 
-  <button
-    onclick="hapusSiswaAdmin(${siswa.id})"
-    class="delete-button"
-  >
-    🗑️ Hapus
-  </button>
+          <small>
+            Kelas ${siswa.kelas} • ${siswa.kelompok}
+          </small>
+        </div>
 
-</div>
+      </div>
+    `).join('');
 
+  const semuaCheckbox =
+    document.querySelectorAll('.pilih-siswa');
 
-    </div>
-  `).join('');
+  const pilihSemua =
+    document.querySelector('#pilihSemuaSiswa');
+
+  const tombolHapus =
+    document.querySelector('#hapusYangDipilih');
+
+  function updateTombolHapus() {
+    const jumlahDipilih =
+      document.querySelectorAll(
+        '.pilih-siswa:checked'
+      ).length;
+
+    if (jumlahDipilih > 0) {
+      tombolHapus.style.display = 'block';
+
+      tombolHapus.textContent =
+        `🗑️ Hapus ${jumlahDipilih} Siswa`;
+    } else {
+      tombolHapus.style.display = 'none';
+    }
+  }
+
+  semuaCheckbox.forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      updateTombolHapus();
+    });
+  });
+
+  pilihSemua.addEventListener('change', () => {
+    semuaCheckbox.forEach((checkbox) => {
+      checkbox.checked = pilihSemua.checked;
+    });
+
+    updateTombolHapus();
+  });
+
+  tombolHapus.addEventListener('click', async () => {
+
+    const dipilih =
+      Array.from(
+        document.querySelectorAll(
+          '.pilih-siswa:checked'
+        )
+      ).map((checkbox) => checkbox.value);
+
+    if (dipilih.length === 0) {
+      return;
+    }
+
+    const yakin = confirm(
+      `Apakah kamu yakin ingin menghapus ${dipilih.length} siswa yang dipilih?`
+    );
+
+    if (!yakin) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('siswa')
+      .delete()
+      .in('id', dipilih);
+
+    if (error) {
+      console.error(
+        'Gagal menghapus siswa:',
+        error
+      );
+
+      alert(
+        'GAGAL MENGHAPUS SISWA\n\n' +
+        'Pesan: ' + error.message + '\n' +
+        'Detail: ' + (error.details || '-') + '\n' +
+        'Hint: ' + (error.hint || '-')
+      );
+
+      return;
+    }
+
+    alert(
+      `${dipilih.length} siswa berhasil dihapus.`
+    );
+
+    await muatDataSiswa();
+
+    halamanKelolaSiswa();
+  });
 }
 
 function halamanTambahSiswa() {
   app.innerHTML = `
-    <main class="page">
+    <div class="admin-page">
+      <button class="btn-kembali" id="btnKembaliTambahSiswa">← Kembali</button>
 
-      <section class="admin-header">
-        <div class="admin-header-content">
+      <h2>Tambah Siswa</h2>
+      <p>Pilih file Excel daftar siswa untuk ditambahkan.</p>
 
-          <span class="admin-label">
-            ADMIN
-          </span>
-
-          <h1>Tambah Siswa</h1>
-
-          <p>
-            Tambahkan data siswa baru.
-          </p>
-
-        </div>
-      </section>
-
-      <section class="form-card">
-
-        <label class="form-label">
-          Data Siswa
-        </label>
-
-        <div class="admin-form-group">
-          <label for="namaSiswa">
-            Nama siswa
-          </label>
-
-          <input
-            id="namaSiswa"
-            type="text"
-            placeholder="Masukkan nama siswa"
-          >
-        </div>
-
-
-        <div class="admin-form-group">
-          <label for="kelasSiswa">
-            Kelas
-          </label>
-
-          <select id="kelasSiswa">
-            <option value="">Pilih kelas</option>
-            <option value="VII">VII</option>
-            <option value="VIII">VIII</option>
-            <option value="IX">IX</option>
-            <option value="X">X</option>
-            <option value="XI">XI</option>
-            <option value="XII">XII</option>
-          </select>
-        </div>
-
-
-        <div class="admin-form-group">
-          <label for="kelompokSiswa">
-            Kelompok
-          </label>
-
-          <select id="kelompokSiswa">
-            <option value="">Pilih kelompok</option>
-            <option value="Putra">Putra</option>
-            <option value="Putri">Putri</option>
-          </select>
-        </div>
-
-
-        <button
-          id="simpanSiswa"
-          class="admin-main-button"
+      <div class="form-group">
+        <label>File Excel</label>
+        <input
+          type="file"
+          id="fileExcelSiswa"
+          accept=".xlsx,.xls"
         >
-          💾 Simpan Siswa
-        </button>
+      </div>
 
+      <button
+        class="btn-primary"
+        id="bacaExcelSiswa"
+      >
+        Baca Excel
+      </button>
 
-        <button
-          id="kembaliDataSiswa"
-          class="back-button"
-        >
-          ← Kembali
-        </button>
-
-      </section>
-
-    </main>
+      <div id="previewSiswa" style="margin-top: 20px;"></div>
+    </div>
   `;
+  document
+  .getElementById("btnKembaliTambahSiswa")
+  .addEventListener("click", halamanAdmin);
+  
+  document
+    .getElementById("bacaExcelSiswa")
+    .addEventListener("click", bacaFileExcelSiswa);
+}
 
-  document.querySelector('#kembaliDataSiswa').addEventListener('click', () => {
-    halamanKelolaSiswa();
-  });
 
-  document.querySelector('#simpanSiswa').addEventListener('click', async () => {
-  const nama = document.querySelector('#namaSiswa').value.trim();
-  const kelas = document.querySelector('#kelasSiswa').value;
-  const kelompok = document.querySelector('#kelompokSiswa').value;
+async function bacaFileExcelSiswa() {
+  const fileInput = document.getElementById("fileExcelSiswa");
+  const preview = document.getElementById("previewSiswa");
 
-  if (nama === '') {
-    alert('Nama siswa harus diisi.');
+  if (!fileInput.files.length) {
+    alert("Silakan pilih file Excel terlebih dahulu.");
     return;
   }
 
-  if (kelas === '') {
-    alert('Silakan pilih kelas.');
-    return;
-  }
+  const file = fileInput.files[0];
 
-  if (kelompok === '') {
-    alert('Silakan pilih kelompok.');
-    return;
-  }
+  try {
+    const arrayBuffer = await file.arrayBuffer();
 
-  const { error } = await supabase
-    .from('siswa')
-    .insert({
-      nama: nama,
-      kelas: kelas,
-      kelompok: kelompok
+    const workbook = XLSX.read(arrayBuffer, {
+      type: "array"
     });
 
-  if (error) {
-  console.error('Gagal menambahkan siswa:', error);
+    const siswaExcel = [];
 
-  alert(
-    'GAGAL MENAMBAHKAN SISWA\n\n' +
-    'Pesan: ' + error.message + '\n' +
-    'Detail: ' + (error.details || '-') + '\n' +
-    'Hint: ' + (error.hint || '-')
-  );
+    workbook.SheetNames.forEach((namaSheet) => {
+      const sheet = workbook.Sheets[namaSheet];
 
-  return;
-}
+      // Contoh:
+      // Kls 7PA → VII, Putra
+      // Kls 7PI → VII, Putri
+      const cocok = namaSheet.match(
+        /Kls\s*(7|8|9|10|11|12)\s*(PA|PI)/i
+      );
 
-  alert('Siswa berhasil ditambahkan.');
+      if (!cocok) return;
 
-  await muatDataSiswa();
+      const nomorKelas = cocok[1];
+      const jenisKelompok = cocok[2].toUpperCase();
 
-  halamanKelolaSiswa();
-});
-}
+      const kelasMap = {
+        "7": "VII",
+        "8": "VIII",
+        "9": "IX",
+        "10": "X",
+        "11": "XI",
+        "12": "XII"
+      };
 
-async function hapusSiswaAdmin(id) {
-  const yakin = confirm(
-    'Apakah kamu yakin ingin menghapus siswa ini?'
-  );
+      const kelas = kelasMap[nomorKelas];
+      const kelompok =
+        jenisKelompok === "PA"
+          ? "Putra"
+          : "Putri";
 
-  if (!yakin) {
-    return;
-  }
+      const data = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: ""
+      });
 
-  const { error } = await supabase
-    .from('siswa')
-    .delete()
-    .eq('id', id);
+      // Cari baris "NAMA SISWA"
+      // yang berada di bagian MUTASI MASUK.
+      let barisHeader = -1;
 
-  if (error) {
-    console.error('Gagal menghapus siswa:', error);
+      for (let i = 0; i < data.length; i++) {
+        if (
+          String(data[i][0]).trim().toUpperCase() === "NO" &&
+          String(data[i][1]).trim().toUpperCase() === "NAMA SISWA"
+        ) {
+          barisHeader = i;
+          break;
+        }
+      }
 
-    alert(
-      'GAGAL MENGHAPUS SISWA\n\n' +
-      'Pesan: ' + error.message + '\n' +
-      'Detail: ' + (error.details || '-') + '\n' +
-      'Hint: ' + (error.hint || '-')
+      if (barisHeader === -1) return;
+
+      // Ambil nama dari kolom B,
+      // hanya dari bagian MUTASI MASUK.
+      for (
+        let i = barisHeader + 1;
+        i < data.length;
+        i++
+      ) {
+        const nama = String(data[i][1] || "").trim();
+
+        if (!nama) continue;
+
+        // Kalau sudah masuk ke bagian MUTASI KELUAR,
+        // berhenti membaca sheet.
+        const isiBaris = data[i]
+          .map((item) => String(item || "").toUpperCase())
+          .join(" ");
+
+        if (isiBaris.includes("MUTASI KELUAR")) {
+          break;
+        }
+
+        // Abaikan baris yang bukan nama siswa
+        if (
+          nama.toUpperCase() === "NAMA SISWA" ||
+          nama.toUpperCase() === "MUTASI MASUK"
+        ) {
+          continue;
+        }
+
+        siswaExcel.push({
+          nama: nama,
+          kelas: kelas,
+          kelompok: kelompok
+        });
+      }
+    });
+
+    // Hilangkan data yang sama
+    const siswaUnik = [];
+    const sudahAda = new Set();
+
+    siswaExcel.forEach((siswa) => {
+      const key =
+        `${siswa.nama}|${siswa.kelas}|${siswa.kelompok}`
+          .toLowerCase();
+
+      if (!sudahAda.has(key)) {
+        sudahAda.add(key);
+        siswaUnik.push(siswa);
+      }
+    });
+
+    if (siswaUnik.length === 0) {
+      preview.innerHTML = `
+        <div class="card">
+          <p>Data siswa tidak ditemukan.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Cek siswa yang sudah ada di Supabase
+    const { data: siswaLama, error } = await supabase
+      .from("siswa")
+      .select("nama, kelas, kelompok");
+
+    if (error) {
+      console.error(error);
+
+      preview.innerHTML = `
+        <div class="card">
+          <p>Gagal mengecek data siswa di database.</p>
+        </div>
+      `;
+
+      return;
+    }
+
+    const dataLama = new Set(
+      (siswaLama || []).map((siswa) =>
+        `${siswa.nama}|${siswa.kelas}|${siswa.kelompok}`
+          .toLowerCase()
+      )
     );
 
+    const siswaBaru = siswaUnik.filter((siswa) => {
+      const key =
+        `${siswa.nama}|${siswa.kelas}|${siswa.kelompok}`
+          .toLowerCase();
+
+      return !dataLama.has(key);
+    });
+
+    window.dataSiswaPreview = siswaBaru;
+
+    preview.innerHTML = `
+      <div class="card">
+        <h3>Preview Data Siswa</h3>
+
+        <p>
+          Ditemukan
+          <strong>${siswaUnik.length}</strong>
+          siswa dari Excel.
+        </p>
+
+        <p>
+          Yang akan ditambahkan:
+          <strong>${siswaBaru.length}</strong>
+          siswa.
+        </p>
+
+        ${
+          siswaBaru.length === 0
+            ? `
+              <p>
+                Semua siswa dari Excel sudah ada di database.
+              </p>
+            `
+            : `
+              <div style="
+                max-height: 400px;
+                overflow-y: auto;
+                margin-top: 15px;
+              ">
+                <table style="width:100%;">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama</th>
+                      <th>Kelas</th>
+                      <th>Kelompok</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    ${siswaBaru
+                      .map(
+                        (siswa, index) => `
+                          <tr>
+                            <td>${index + 1}</td>
+                            <td>${siswa.nama}</td>
+                            <td>${siswa.kelas}</td>
+                            <td>${siswa.kelompok}</td>
+                          </tr>
+                        `
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+
+              <button
+                class="btn-primary"
+                id="simpanSiswaPreview"
+                style="margin-top: 20px;"
+              >
+                Tambahkan Semua
+              </button>
+            `
+        }
+      </div>
+    `;
+
+    const tombolSimpan =
+      document.getElementById("simpanSiswaPreview");
+
+    if (tombolSimpan) {
+      tombolSimpan.addEventListener(
+        "click",
+        simpanSiswaDariExcel
+      );
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    preview.innerHTML = `
+      <div class="card">
+        <p>
+          Gagal membaca file Excel.
+          Pastikan file yang dipilih adalah Excel
+          (.xlsx atau .xls).
+        </p>
+      </div>
+    `;
+  }
+}
+
+
+async function simpanSiswaDariExcel() {
+  const siswaBaru = window.dataSiswaPreview || [];
+
+  if (siswaBaru.length === 0) {
+    alert("Tidak ada siswa baru untuk ditambahkan.");
     return;
   }
 
-  alert('Siswa berhasil dihapus.');
+  const tombol =
+    document.getElementById("simpanSiswaPreview");
 
-  await muatDataSiswa();
+  if (tombol) {
+    tombol.disabled = true;
+    tombol.textContent = "Menambahkan...";
+  }
 
-  halamanKelolaSiswa();
+  try {
+    const { error } = await supabase
+      .from("siswa")
+      .insert(siswaBaru);
+
+    if (error) {
+      console.error(error);
+
+      alert(
+        "Gagal menambahkan siswa: " +
+        error.message
+      );
+
+      if (tombol) {
+        tombol.disabled = false;
+        tombol.textContent = "Tambahkan Semua";
+      }
+
+      return;
+    }
+
+    alert(
+      `${siswaBaru.length} siswa berhasil ditambahkan!`
+    );
+
+    window.dataSiswaPreview = [];
+
+    halamanKelolaSiswa();
+
+  } catch (error) {
+    console.error(error);
+
+    alert("Terjadi kesalahan saat menambahkan siswa.");
+
+    if (tombol) {
+      tombol.disabled = false;
+      tombol.textContent = "Tambahkan Semua";
+    }
+  }
 }
-
-window.hapusSiswaAdmin = hapusSiswaAdmin;
 
 function halamanSiswa() {
   app.innerHTML = `

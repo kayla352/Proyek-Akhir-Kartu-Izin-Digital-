@@ -1473,3 +1473,165 @@ textarea {
 #keluarAdmin:hover {
   background: #f1f1f1;
 }
+/* ============================= */
+/* HALAMAN TAMBAH SISWA */
+/* ============================= */
+
+.admin-page {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 25px 20px 40px;
+}
+
+.admin-page h2 {
+  margin: 20px 0 8px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #222;
+}
+
+.admin-page > p {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+/* Tombol kembali */
+.btn-kembali {
+  border: none;
+  background: transparent;
+  color: #555;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 0;
+}
+
+.btn-kembali:hover {
+  color: #000;
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Input file */
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* Tombol utama */
+.btn-primary {
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 12px;
+  background: #f4c542;
+  color: #222;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background: #e9b82e;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Card */
+.admin-page .card {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.admin-page .card h3 {
+  margin: 0 0 15px;
+  font-size: 18px;
+  color: #222;
+}
+
+.admin-page .card p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Tabel preview */
+.admin-page table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-page table th {
+  background: #f7f7f7;
+  color: #444;
+  font-weight: 700;
+  padding: 11px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.admin-page table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee;
+  color: #444;
+}
+
+.admin-page table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Area scroll tabel */
+#previewSiswa > .card > div {
+  scrollbar-width: thin;
+}
+
+/* Tampilan HP */
+@media (max-width: 600px) {
+  .admin-page {
+    padding: 20px 16px 35px;
+  }
+
+  .admin-page h2 {
+    font-size: 24px;
+  }
+
+  .admin-page .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .admin-page table {
+    font-size: 12px;
+  }
+
+  .admin-page table th,
+  .admin-page table td {
+    padding: 9px 6px;
+  }
+}
