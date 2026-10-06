@@ -701,13 +701,120 @@ async function halamanKelolaSiswa() {
 function halamanTambahSiswa() {
   app.innerHTML = `
     <div class="admin-page">
-      <button class="btn-kembali" id="btnKembaliTambahSiswa">← Kembali</button>
+
+      <button class="btn-kembali" id="btnKembaliTambahSiswa">
+        ← Kembali
+      </button>
 
       <h2>Tambah Siswa</h2>
-      <p>Pilih file Excel daftar siswa untuk ditambahkan.</p>
+      <p>Pilih cara untuk menambahkan data siswa.</p>
+
+      <div class="card pilihan-tambah-siswa">
+
+        <button
+          class="btn-primary"
+          id="btnTambahManual"
+        >
+          ➕ Tambah 1 Siswa
+        </button>
+
+        <button
+          class="btn-primary"
+          id="btnImportExcel"
+          style="margin-top: 12px;"
+        >
+          📊 Import dari Excel
+        </button>
+
+      </div>
+
+      <div id="formTambahSiswa"></div>
+
+    </div>
+  `;
+
+  // Tombol kembali
+  document
+    .getElementById("btnKembaliTambahSiswa")
+    .addEventListener("click", halamanAdmin);
+
+  // Tambah satu siswa
+  document
+    .getElementById("btnTambahManual")
+    .addEventListener("click", halamanTambahSatuSiswa);
+
+  // Import Excel
+  document
+    .getElementById("btnImportExcel")
+    .addEventListener("click", halamanImportExcel);
+}
+
+function halamanTambahSatuSiswa() {
+  const form = document.getElementById("formTambahSiswa");
+
+  form.innerHTML = `
+    <div class="card" style="margin-top: 20px;">
+
+      <h3>Tambah 1 Siswa</h3>
+
+      <div class="form-group">
+        <label>Nama Siswa</label>
+        <input
+          type="text"
+          id="namaSiswaManual"
+          placeholder="Masukkan nama siswa"
+        >
+      </div>
+
+      <div class="form-group">
+        <label>Kelas</label>
+        <select id="kelasSiswaManual">
+          <option value="">Pilih kelas</option>
+          <option value="VII">VII</option>
+          <option value="VIII">VIII</option>
+          <option value="IX">IX</option>
+          <option value="X">X</option>
+          <option value="XI">XI</option>
+          <option value="XII">XII</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Kelompok</label>
+        <select id="kelompokSiswaManual">
+          <option value="">Pilih kelompok</option>
+          <option value="Putra">Putra</option>
+          <option value="Putri">Putri</option>
+        </select>
+      </div>
+
+      <button
+        class="btn-primary"
+        id="simpanSiswaManual"
+      >
+        Simpan Siswa
+      </button>
+
+    </div>
+  `;
+
+  document
+    .getElementById("simpanSiswaManual")
+    .addEventListener("click", simpanSatuSiswa);
+}
+
+
+function halamanImportExcel() {
+  const form = document.getElementById("formTambahSiswa");
+
+  form.innerHTML = `
+    <div class="card" style="margin-top: 20px;">
+
+      <h3>Import Siswa dari Excel</h3>
 
       <div class="form-group">
         <label>File Excel</label>
+
         <input
           type="file"
           id="fileExcelSiswa"
@@ -722,18 +829,85 @@ function halamanTambahSiswa() {
         Baca Excel
       </button>
 
-      <div id="previewSiswa" style="margin-top: 20px;"></div>
+      <div
+        id="previewSiswa"
+        style="margin-top: 20px;"
+      ></div>
+
     </div>
   `;
-  document
-  .getElementById("btnKembaliTambahSiswa")
-  .addEventListener("click", halamanAdmin);
-  
+
   document
     .getElementById("bacaExcelSiswa")
     .addEventListener("click", bacaFileExcelSiswa);
 }
+async function simpanSatuSiswa() {
+  const nama = document
+    .getElementById("namaSiswaManual")
+    .value
+    .trim();
 
+  const kelas = document
+    .getElementById("kelasSiswaManual")
+    .value;
+
+  const kelompok = document
+    .getElementById("kelompokSiswaManual")
+    .value;
+
+  if (!nama || !kelas || !kelompok) {
+    alert("Nama, kelas, dan kelompok harus diisi.");
+    return;
+  }
+
+  try {
+    // Cek apakah siswa sudah ada
+    const { data: siswaLama, error: errorCek } =
+      await supabase
+        .from("siswa")
+        .select("id")
+        .eq("nama", nama)
+        .eq("kelas", kelas)
+        .eq("kelompok", kelompok)
+        .maybeSingle();
+
+    if (errorCek) {
+      console.error(errorCek);
+      alert("Gagal mengecek data siswa.");
+      return;
+    }
+
+    if (siswaLama) {
+      alert("Siswa tersebut sudah ada di database.");
+      return;
+    }
+
+    // Simpan siswa
+    const { error } = await supabase
+      .from("siswa")
+      .insert([
+        {
+          nama: nama,
+          kelas: kelas,
+          kelompok: kelompok
+        }
+      ]);
+
+    if (error) {
+      console.error(error);
+      alert("Gagal menambahkan siswa: " + error.message);
+      return;
+    }
+
+    alert("Siswa berhasil ditambahkan!");
+
+    halamanKelolaSiswa();
+
+  } catch (error) {
+    console.error(error);
+    alert("Terjadi kesalahan saat menambahkan siswa.");
+  }
+}
 
 async function bacaFileExcelSiswa() {
   const fileInput = document.getElementById("fileExcelSiswa");
