@@ -297,14 +297,8 @@ function halamanLoginAdmin() {
   app.innerHTML = `
     <main class="page">
 
-      <section class="hero">
-        <div class="circle pink"></div>
-        <div class="circle blue"></div>
-
-        <div class="hero-content">
-          <div class="label">
-            KARTU IZIN BOARDING
-          </div>
+     <section class="admin-header">
+        <div class="admin-header-content">
 
           <h1>Admin</h1>
 
